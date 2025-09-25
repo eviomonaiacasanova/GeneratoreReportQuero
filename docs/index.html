@@ -1,147 +1,66 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <!--
-    Generatore schede guasti – UT Feltre / OU Quero
-    Versione: v5.1.1 (fix layout ANOMALIA + share PDF robusto + pulizie)
-    Note: cerca i blocchi // SEZIONE: ... per orientarti
-  -->
+  <!-- Generatore schede guasti – UT Feltre / OU Quero
+       Versione: v5.3.3 (date/time auto on load & reset, 2 photos per PDF page, logo draw improved, centered header) -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Generatore report v5.1.1</title>
-  <link rel="preload" as="image" href="logo_egp.png" />
-
-  <!-- Anti-indicizzazione / privacy (complementare a robots.txt) -->
+  <title>Generatore report v5.3.3</title>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
-  <meta name="googlebot" content="noindex,nofollow">
-  <meta name="bingbot" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
-  <!-- Nota: meta-CSP è meno forte degli header HTTP. Qui abilitiamo inline script/stili perché la pagina è standalone. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self' mailto:; connect-src 'none'">
-  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; connect-src 'none'">
   <style>
-    /* ==========================
-       SEZIONE: Design system
-       ========================== */
-    :root {
-      --bg: #0b0c10; --panel: #121318; --border: #23242a; --muted: #aeb3bb; --text: #e6e6e6; --surface: #181a21;
-      --accent: #4e8df5; --danger: #c0392b; --danger-border: #b23427; --gap: 12px; --radius: 10px; --shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
-    * { box-sizing: border-box; } html, body { height: 100%; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
-    a { color: inherit; }
-    .wrap { max-width: 900px; margin: 24px auto; padding: 0 16px 108px; }
-
-    /* Header */
-    h1.title { margin: 0 0 18px; display:flex; align-items:center; gap:14px; }
-    .logo { width: auto; height: 80px; object-fit: contain; flex: 0 0 auto; }
-    .titlestack { display:inline-flex; flex-direction:column; align-items:center; line-height: 1.15; }
-    .titlestack .line1 { font-size: 1.4rem; font-weight: 800; letter-spacing:.2px; }
-    .titlestack .line2 { font-size: 1.05rem; color: var(--muted); margin-top: 2px; }
-
-    /* Form */
-    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: var(--gap); background: var(--panel); padding: 18px; border-radius: var(--radius); border:1px solid var(--border); }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .full { grid-column: 1 / -1; }
-    label, legend { font-weight: 600; font-size: 0.95rem; }
-    .nota-legenda { display:block; color: var(--muted); font-size: .9rem; margin: 2px 0 6px; }
-    select, input[type="date"], input[type="time"], input[type="text"], textarea { background: var(--surface); color: var(--text); border:1px solid var(--border); border-radius: 8px; padding: 10px; outline: none; }
-    select:focus, input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(78,141,245,.15); }
-    textarea { min-height: 110px; resize: vertical; }
-
-    /* Pulsanti */
-    .azioni { display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
-    .btn { text-decoration:none; display:inline-flex; align-items:center; justify-content:center; padding: 10px 14px; border-radius:10px; border:1px solid var(--border); background: var(--surface); color: var(--text); font-weight:700; cursor:pointer; transition: transform .02s linear; }
-    .btn:active { transform: translateY(1px); }
-    .btn--primario { background: var(--accent); border-color: var(--accent); color:#fff; }
-    .btn--pericolo { background: var(--danger); border-color: var(--danger-border); color:#fff; }
-    .btn[disabled] { opacity:.6; cursor: not-allowed; }
-
-    /* Chips */
-    .chips { display:flex; flex-wrap: wrap; gap: 10px; }
-    .chip { appearance: none; border:1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 10px 14px; font-weight: 600; cursor: pointer; user-select: none; min-width: 44px; min-height: 44px; display:inline-flex; align-items:center; justify-content:center; }
-    .chip[aria-pressed="true"], .chip[aria-checked="true"] { background:#27447c; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(78,141,245,.18) inset; }
-
-    /* Anomalia: su una sola riga con scroll orizzontale se serve */
-    #anomaliaChips { display:flex; gap:10px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-    /* Report */
-    .report-area { width:100%; min-height: 150px; user-select:text; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .muted { color: var(--muted); font-size: 0.9rem; }
-    .invalid { border-color: #d15757 !important; box-shadow: 0 0 0 3px rgba(209,87,87,.15) !important; }
-
-    /* Toast */
-    #toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(30px); background: #1e232b; color: #fff; padding: 12px 14px; border-radius: 10px; border:1px solid #333a44; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity .24s ease, transform .24s ease; max-width: 92vw; font-size: .95rem; z-index: 9999; }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* Footer */
-    footer { position: sticky; bottom: 0; width: 100%; background: linear-gradient(180deg, rgba(18,19,24,0), rgba(18,19,24,.85) 20%, var(--panel) 55%); backdrop-filter: blur(4px); }
-    .footer-inner { max-width: 900px; margin: 0 auto; padding: 10px 16px 12px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; font-size: 0.88rem; color: #d0d4db; }
-    .footer-inner .dot { opacity:.7; padding:0 8px; }
-    .footer-inner a { color:#d6d9de; text-decoration:none; border-bottom:1px dotted #3a3d44; }
-    .badge { padding: 3px 8px; border:1px solid var(--border); border-radius:999px; background: var(--surface); color:#dfe3ea; font-weight:700; font-size:.82rem; }
-
-    @media print {
-      html, body { background:#fff; color:#000; }
-      .wrap { padding: 0 0 8px; }
-      form, .report-area, select, input, textarea { border-color:#777 !important; }
-      .azioni { display:none !important; }
-      .chip { border-color:#777; background:#fff; color:#000; box-shadow:none !important; }
-      footer { position: static; background:#fff; backdrop-filter:none; border-top:1px solid #888; }
-      .footer-inner { color:#000; justify-content:space-between; }
-      .footer-inner a { color:#000; border:none; text-decoration:underline; }
-      .badge { background:#fff; border-color:#888; color:#000; }
-      textarea.report-area { white-space: pre-wrap; }
-    }
+    :root { --bg:#0b0c10; --panel:#121318; --border:#23242a; --muted:#aeb3bb; --text:#e6e6e6; --surface:#181a21; --accent:#4e8df5; --danger:#c0392b; --danger-border:#b23427; --gap:12px; --radius:10px; --shadow:0 10px 30px rgba(0,0,0,.35); }
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:900px;margin:24px auto;padding:0 16px 108px}
+    h1.title{margin:0 0 18px;display:flex;align-items:center;justify-content:center;gap:14px;text-align:center}
+    .logo{height:80px;object-fit:contain}
+    .titlestack{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15}
+    .titlestack .line1{font-size:1.4rem;font-weight:800}
+    .titlestack .line2{font-size:1.05rem;color:var(--muted);margin-top:2px}
+    form{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--gap);background:var(--panel);padding:18px;border-radius:var(--radius);border:1px solid var(--border)}
+    .field{display:flex;flex-direction:column;gap:6px} .full{grid-column:1 / -1} label,legend{font-weight:600;font-size:.95rem} .nota-legenda{color:var(--muted);font-size:.9rem;margin:2px 0 6px}
+    select,input[type=date],input[type=time],input[type=text],textarea{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px}
+    select:focus,input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,141,245,.15)} textarea{min-height:110px;resize:vertical}
+    .azioni{display:flex;gap:10px;flex-wrap:wrap;align-items:center} .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:700;cursor:pointer}
+    .btn--primario{background:var(--accent);border-color:var(--accent);color:#fff} .btn--pericolo{background:var(--danger);border-color:var(--danger-border);color:#fff} .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .chips{display:flex;flex-wrap:wrap;gap:10px} .chip{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+    .chip[aria-pressed=true],.chip[aria-checked=true]{background:#27447c;border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,141,245,.18) inset}
+    #anomaliaChips{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .report-area{width:100%;min-height:150px;user-select:text;font-family:ui-monospace,Menlo,Consolas,monospace}
+    .muted{color:var(--muted);font-size:.9rem} .invalid{border-color:#d15757!important;box-shadow:0 0 0 3px rgba(209,87,87,.15)!important}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--gap)} .foto-card{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:10px;display:flex;flex-direction:column;gap:10px}
+    .foto-preview{display:block;width:100%;aspect-ratio:4/3;background:#0f1117;border:1px dashed #3a3d44;border-radius:8px;object-fit:contain;visibility:hidden}
+    .foto-actions{display:flex;gap:8px} input[type=file].hidden{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+    #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:#1e232b;color:#fff;padding:12px 14px;border-radius:10px;border:1px solid #333a44;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .24s,transform .24s;max-width:92vw;font-size:.95rem;z-index:9999}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    footer{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(18,19,24,0),rgba(18,19,24,.85) 20%,var(--panel) 55%)}
+    .footer-inner{max-width:900px;margin:0 auto;padding:10px 16px 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;font-size:.88rem;color:#d0d4db}
+    .footer-inner .dot{opacity:.7;padding:0 8px} .badge{padding:3px 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:#dfe3ea;font-weight:700;font-size:.82rem}
+    @media print{html,body{background:#fff;color:#000}.wrap{padding:0 0 8px} .azioni{display:none!important} .chip{border-color:#777;background:#fff;color:#000;box-shadow:none!important} footer{position:static;background:#fff;border-top:1px solid #888} .footer-inner{color:#000;justify-content:space-between} .badge{background:#fff;border-color:#888;color:#000} textarea.report-area{white-space:pre-wrap}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1 class="title">
       <img class="logo" src="logo_egp.png" alt="Enel Green Power"/>
-      <span class="titlestack" aria-label="Intestazione">
-        <span class="line1">Generatore schede guasti</span>
-        <span class="line2">UT Feltre - OU Quero</span>
-      </span>
+      <span class="titlestack"><span class="line1">Generatore schede guasti</span><span class="line2">UT Feltre - OU Quero</span></span>
     </h1>
 
-    <!-- ==========================
-         SEZIONE: Form principale
-         ========================== -->
     <form id="formReport" novalidate>
-      <!-- IMPIANTO -->
       <div class="field">
         <label for="impianto">Impianto</label>
         <select id="impianto" required>
           <option value="" disabled selected>— seleziona impianto —</option>
-          <!-- opzioni generate via JS da CONFIG.IMPIANTI -->
         </select>
       </div>
 
-      <!-- DATA -->
-      <div class="field">
-        <label for="data">Data anomalia</label>
-        <input type="date" id="data" required />
-      </div>
+      <div class="field"><label for="data">Data anomalia</label><input type="date" id="data" /></div>
+      <div class="field"><label for="ora">Orario anomalia</label><input type="time" id="ora" /></div>
+      <div class="field"><label for="operatore">Operatore</label><input type="text" id="operatore" placeholder="Nome e cognome o sigla" /></div>
 
-      <!-- ORARIO -->
-      <div class="field">
-        <label for="ora">Orario anomalia</label>
-        <input type="time" id="ora" required />
-      </div>
-
-      <!-- OPERATORE -->
-      <div class="field">
-        <label for="operatore">Operatore</label>
-        <input type="text" id="operatore" placeholder="Nome e cognome o sigla" />
-      </div>
-
-      <!-- ZONA (multi) -->
       <fieldset class="field full">
-        <legend>Zona</legend>
-        <div class="nota-legenda">(tocca per selezionare/deselezionare)</div>
+        <legend>Zona</legend><div class="nota-legenda">(clic per selezionare/deselezionare)</div>
         <div id="zoneChips" class="chips" role="group" aria-label="Selezione multipla zona">
           <button type="button" class="chip" data-value="GRUPPO 1" aria-pressed="false">GRUPPO 1</button>
           <button type="button" class="chip" data-value="GRUPPO 2" aria-pressed="false">GRUPPO 2</button>
@@ -150,10 +69,8 @@
         </div>
       </fieldset>
 
-      <!-- ANOMALIA (radio) -->
       <fieldset class="field full">
-        <legend>Anomalia</legend>
-        <div class="nota-legenda">(tocca per selezionare/deselezionare)</div>
+        <legend>Anomalia</legend><div class="nota-legenda">(clic per selezionare)</div>
         <div id="anomaliaChips" class="chips" role="radiogroup" aria-label="Tipo di anomalia">
           <button type="button" class="chip" role="radio" data-value="ALLARME" aria-checked="false">ALLARME</button>
           <button type="button" class="chip" role="radio" data-value="BLOCCO" aria-checked="false">BLOCCO</button>
@@ -161,32 +78,47 @@
         </div>
       </fieldset>
 
-      <!-- DESCRIZIONE -->
-      <div class="field full">
-        <label for="descrizione">Descrizione anomalia</label>
-        <textarea id="descrizione" placeholder="Descrivi l'anomalia riscontrata..."></textarea>
-      </div>
+      <div class="field full"><label for="descrizione">Descrizione anomalia</label><textarea id="descrizione" placeholder="Descrivi l'anomalia riscontrata..."></textarea></div>
+      <div class="field full"><label for="operazioni">Operazioni effettuate</label><textarea id="operazioni" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea></div>
 
-      <!-- OPERAZIONI -->
-      <div class="field full">
-        <label for="operazioni">Operazioni effettuate</label>
-        <textarea id="operazioni" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
-      </div>
+      <fieldset class="field full">
+        <legend>Allegati foto</legend>
+        <div class="nota-legenda">Fino a 3 immagini. L'anteprima compare sopra al pulsante. Ogni foto si può eliminare.</div>
+        <div class="gallery">
+          <div class="foto-card" data-slot="1">
+            <img class="foto-preview" id="preview1" alt="Anteprima foto 1" />
+            <div class="foto-actions">
+              <button type="button" class="btn btn--primario" id="btnUpload1">Carica foto 1</button>
+              <button type="button" class="btn btn--pericolo" id="btnDelete1" disabled>Elimina</button>
+            </div>
+            <input type="file" accept="image/*" id="file1" class="hidden" />
+          </div>
+          <div class="foto-card" data-slot="2">
+            <img class="foto-preview" id="preview2" alt="Anteprima foto 2" />
+            <div class="foto-actions">
+              <button type="button" class="btn btn--primario" id="btnUpload2">Carica foto 2</button>
+              <button type="button" class="btn btn--pericolo" id="btnDelete2" disabled>Elimina</button>
+            </div>
+            <input type="file" accept="image/*" id="file2" class="hidden" />
+          </div>
+          <div class="foto-card" data-slot="3">
+            <img class="foto-preview" id="preview3" alt="Anteprima foto 3" />
+            <div class="foto-actions">
+              <button type="button" class="btn btn--primario" id="btnUpload3">Carica foto 3</button>
+              <button type="button" class="btn btn--pericolo" id="btnDelete3" disabled>Elimina</button>
+            </div>
+            <input type="file" accept="image/*" id="file3" class="hidden" />
+          </div>
+        </div>
+      </fieldset>
 
-      <!-- REPORT -->
-      <div class="field full">
-        <label for="reportFinale">Report generato</label>
-        <textarea id="reportFinale" class="report-area" readonly aria-readonly="true" placeholder="Il report comparirà qui man mano che compili."></textarea>
-      </div>
+      <div class="field full"><label for="reportFinale">Report generato</label><textarea id="reportFinale" class="report-area" readonly aria-readonly="true" placeholder="Il report comparirà qui man mano che compili."></textarea></div>
 
-      <!-- AZIONI -->
       <div class="full azioni">
-        <button type="button" id="btnCopia" class="btn btn--primario">COPIA</button>
-        <button type="button" id="btnCondividi" class="btn">CONDIVIDI</button>
-        <a id="btnEmail" class="btn" href="#" target="_self">Email</a>
-        <button type="button" id="btnStampaPdf" class="btn">Stampa PDF</button>
-        <button type="button" id="btnCondividiPdf" class="btn">Condividi PDF</button>
-        <button type="button" id="btnNuovoReport" class="btn btn--pericolo" title="Svuota e riparti">Nuovo report</button>
+        <button type="button" id="btnCopy" class="btn btn--primario">COPIA</button>
+        <button type="button" id="btnPrintPdf" class="btn">Stampa PDF</button>
+        <button type="button" id="btnDownloadPdf" class="btn">Download PDF</button>
+        <button type="button" id="btnReset" class="btn btn--pericolo" title="Svuota e riparti">Nuovo report</button>
         <span class="muted" id="copiedMsg" aria-live="polite"></span>
       </div>
     </form>
@@ -194,336 +126,188 @@
 
   <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- ==========================
-       SEZIONE: Footer
-       ========================== -->
   <footer>
     <div class="footer-inner">
-      <span class="badge" id="versionBadge">Generatore di report • v5.1.1</span>
-      <span class="dot">•</span>
-      <span>Feedback: <a id="feedbackEmail" href="#">[clicca per inviare feedback]</a></span>
+      <span class="badge" id="versionBadge">Generatore di report • v5.3.3</span>
       <span class="dot">•</span>
       <span class="muted">Uso interno Enel Green Power</span>
-      <span class="dot">•</span>
-      <span>Comodo il mio report?</span>
-      <a class="btn" id="donateLink" href="https://web.satispay.com/app/match/link/user/S6Y-CON--757FC8B7-C206-40CA-ADBD-B43EBB64AA83?amount=100&currency=EUR" target="_blank" rel="noopener noreferrer" title="Offrimi un caffè ☕ (1€ con Satispay)">Dona 1€ con Satispay</a>
-      <span class="dot">•</span>
-      <span>powered by ChatGPT</span>
     </div>
   </footer>
 
   <script>
-    // ==========================
-    // SEZIONE: Config e costanti
-    // ==========================
-    const CONFIG = {
-      VERSION: 'v5.1.1',
-      SS_KEY: 'rg_state_v1',
-      IMPIANTI: [ 'ALTANON','ANZU','ARCADE','BUSCHE DMV','BUSCHE SBARRAMENTO','CAERANO','CASTELVIERO','CROCE DEL GALLO','FONDERIA','PEDEROBBA','POMPE SONNA','PONTE PIETRA','PONTE SAN MARTINO','PRIULA','QUERO','SPEEDY','SPRESIANO','TAVARAN' ],
-      EMAILS: { TO: [ ['francesco','simonetto'], ['mauro','martin'], ['emanuele','sansone'] ], BCC: ['evio','monaiacasanova'], DOMAIN: ['enel','com'] },
-      AUTOWIPE_MS: 24*60*60*1000 // 24h
-    };
+    const CONFIG = { VERSION:'v5.3.3', PLANTS:[ 'ALTANON','ANZU','ARCADE','BUSCHE DMV','BUSCHE SBARRAMENTO','CAERANO','CASTELVIERO','CROCE DEL GALLO','FONDERIA','PEDEROBBA','POMPE SONNA','PONTE PIETRA','PONTE SAN MARTINO','PRIULA','QUERO','SPEEDY','SPRESIANO','TAVARAN' ] };
+    const MSG = { nothingToCopy:'Niente da copiare.', copied:'Copiato!', nothingToPrint:'Niente da stampare.', pdfError:'Errore durante la creazione del PDF.', popupBlocked:'Popup bloccato.', logoSkipped:'Logo non inserito nel PDF per restrizioni del browser.' };
 
-    const MESSAGGI = {
-      nullaDaCopiare: 'Niente da copiare.', copiato: 'Copiato!', copiatoFallback: 'Copiato (fallback).',
-      nullaDaCondividere: 'Niente da condividere.', nullaDaInviare: 'Niente da inviare.',
-      condivisioneNonSupportata: 'Condivisione non supportata: testo copiato. Incolla nell\'app desiderata.',
-      popupBloccato: 'Popup bloccato. Consenti le finestre per la stampa.',
-      mancano: (arr)=>`Mancano informazioni: ${arr.join(', ')}`,
-      firefoxUsaCondividi: 'Su Firefox Android usa il pulsante CONDIVIDI.',
-      nienteDaStampare: 'Niente da stampare.',
-      condivisionePdfNonSupportata: 'Condivisione PDF non supportata su questo dispositivo.'
-    };
+    const state = { images:{1:null,2:null,3:null} };
+    const $=(s)=>document.querySelector(s); const $$=(s)=>Array.from(document.querySelectorAll(s));
+    const debounce=(fn,d=200)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d);};};
 
-    const AMBIENTE = (()=>{ const ua = navigator.userAgent || navigator.vendor || window.opera; return { puoCondividere: !!navigator.share, firefoxAndroid: /Android/i.test(ua) && /Firefox/i.test(ua) }; })();
+    // Toast
+    let toastTimer=null; function showToast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500); }
 
-    // Utility DOM
-    const $  = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.prototype.slice.call(document.querySelectorAll(sel));
+    // Helpers
+    function nowDate(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+    function nowTime(){ const d=new Date(); const hh=String(d.getHours()).padStart(2,'0'); const mm=String(d.getMinutes()).padStart(2,'0'); return `${hh}:${mm}`; }
 
-    // ==========================
-    // SEZIONE: Helper generali
-    // ==========================
-    const pad2 = (n) => (String(n).length<2 ? ('0'+n) : String(n));
-    const scappaHtml = (s='') => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const debounce = (fn, delay=200) => { let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn.apply(null,args), delay); }; };
+    // Chips
+    function selectedZones(){ return $$('#zoneChips .chip[aria-pressed="true"]').map(b=>b.dataset.value); }
+    function selectedAnomaly(){ const on=$('#anomaliaChips .chip[aria-checked="true"]'); return on?on.dataset.value:''; }
 
-    // Email offuscate
-    const creaEmail = (localParts, domainParts) => localParts.join('.') + String.fromCharCode(64) + domainParts.join('.');
-    const LISTA_TO = CONFIG.EMAILS.TO.map(parts => creaEmail(parts, CONFIG.EMAILS.DOMAIN));
-    const EMAIL_BCC = creaEmail(CONFIG.EMAILS.BCC, CONFIG.EMAILS.DOMAIN);
+    // Report
+    function buildReport(){
+      const plant=$('#impianto').value||'—'; const date=$('#data').value||'—'; const time=$('#ora').value||'—';
+      const operator=($('#operatore').value||'').trim(); const zones=selectedZones(); const anomaly=selectedAnomaly()||'—';
+      const desc=($('#descrizione').value||'').trim(); const ops=($('#operazioni').value||'').trim();
+      const lines=[`IMPIANTO: ${plant}`,`DATA: ${date}`,`ORA: ${time}`,(operator?`OPERATORE: ${operator}`:'OPERATORE: —'),`ZONA: ${zones.length?zones.join(', '):'—'}`,`ANOMALIA: ${anomaly}`,'','DESCRIZIONE ANOMALIA:',(desc||'—'),'','OPERAZIONI EFFETTUATE:',(ops||'—')];
+      $('#reportFinale').value = lines.join('\n'); updateActionState();
+    }
+    function updateActionState(){ const hasText=!!(($('#reportFinale').value||'').trim()); $('#btnCopy').disabled=!hasText; $('#btnPrintPdf').disabled=!hasText; $('#btnDownloadPdf').disabled=!hasText; }
 
-    // ==========================
-    // SEZIONE: Storage (sessionStorage) + autowipe
-    // ==========================
-    function caricaStato(){ try { const raw = sessionStorage.getItem(CONFIG.SS_KEY); return raw ? JSON.parse(raw) : {}; } catch(e){ return {}; } }
-    function salvaStato(obj){ try { sessionStorage.setItem(CONFIG.SS_KEY, JSON.stringify(obj)); } catch(e){} }
-    function cancellaStato(){ try { sessionStorage.removeItem(CONFIG.SS_KEY); } catch(e){} }
-
-    let stato = caricaStato();
-    let ultimoSalvatoJson = JSON.stringify(stato||{});
-
-    function pulisciTutto(){
-      $('#descrizione').value = '';
-      $('#operazioni').value = '';
-      $('#reportFinale').value = '';
-      $$('#zoneChips .chip').forEach(b=> b.setAttribute('aria-pressed','false'));
-      $$('#anomaliaChips .chip').forEach(b=> b.setAttribute('aria-checked','false'));
-      const t = new Date();
-      $('#data').value = `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())}`;
-      $('#ora').value  = `${pad2(t.getHours())}:${pad2(t.getMinutes())}`;
-      stato = { data: $('#data').value, ora: $('#ora').value, creatoAlle: Date.now() };
-      ultimoSalvatoJson = JSON.stringify(stato);
-      cancellaStato(); salvaStato(stato);
-      aggiornaCollegamentoEmail(); aggiornaAbilitazioneAzioni();
+    // Images
+    function resetImageSlot(i){ const img=$('#preview'+i); img.removeAttribute('src'); img.style.visibility='hidden'; $('#btnDelete'+i).disabled=true; const f=$('#file'+i); if(f) f.value=''; state.images[i]=null; }
+    function setImagePreview(i, dataUrl){ const img=$('#preview'+i); img.src=dataUrl; img.style.visibility='visible'; $('#btnDelete'+i).disabled=false; state.images[i]=dataUrl; }
+    function bindImageSlot(i){
+      const f=$('#file'+i), btnU=$('#btnUpload'+i), btnD=$('#btnDelete'+i), prev=$('#preview'+i);
+      prev.style.visibility='hidden';
+      btnU.addEventListener('click', ()=> f && f.click());
+      f.addEventListener('change', ()=>{ const file=(f.files||[])[0]; if(!file) return; if(!file.type.startsWith('image/')) return; const reader=new FileReader(); reader.onload=e=>setImagePreview(i,e.target.result); reader.readAsDataURL(file); });
+      btnD.addEventListener('click', ()=> resetImageSlot(i));
     }
 
-    // Autowipe all'apertura e dopo 24h
-    (function autowipeStartup(){ pulisciTutto(); setTimeout(()=>{ pulisciTutto(); }, CONFIG.AUTOWIPE_MS); })();
+    // PDF with logo (two photos per page)
+    const A4W=1654,A4H=2339,MARGIN=100;
+    function wrapText(ctx, text, maxW){ const words=(text||'').split(/\s+/); const lines=[]; let line=''; for(const w of words){ const test=line?line+' '+w:w; if(ctx.measureText(test).width<=maxW) line=test; else{ if(line) lines.push(line); line=w; } } if(line) lines.push(line); return lines; }
 
-    // ==========================
-    // SEZIONE: Inizializzazione UI
-    // ==========================
-    document.title = 'Generatore report ' + CONFIG.VERSION;
-    $('#versionBadge').textContent = 'Generatore di report • ' + CONFIG.VERSION;
+    function loadLogo(){ return new Promise((res,rej)=>{ const img=new Image(); /* no crossOrigin to reduce taint risk on same-origin */ img.onload=()=>res(img); img.onerror=()=>rej(new Error('logo load failed')); img.src='logo_egp.png'; }); }
 
-    (function impostaEmailFeedback(){ const fb = creaEmail(['evio','monaiacasanova'], CONFIG.EMAILS.DOMAIN); const subject = encodeURIComponent('Feedback Generatore Report ' + CONFIG.VERSION); $('#feedbackEmail').setAttribute('href','mailto:' + fb + '?subject=' + subject); })();
-
-    (function riempiImpianti(){ const sel = $('#impianto'); CONFIG.IMPIANTI.forEach(nome=>{ const opt = document.createElement('option'); opt.textContent = nome; opt.value = nome; sel.appendChild(opt); }); })();
-
-    (function precompilaDataOra(){ const now = new Date(); if (!stato.data) stato.data = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`; if (!stato.ora) stato.ora = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`; })();
-
-    (function applicaStato(){ $('#impianto').value = stato.impianto || ''; $('#data').value = stato.data || ''; $('#ora').value = stato.ora || ''; $('#operatore').value = stato.operatore || ''; impostaChips('#zoneChips', stato.zone || []); impostaChipRadio('#anomaliaChips', stato.anomalia || ''); $('#reportFinale').value = stato.report || ''; })();
-
-    $('#reportFinale').addEventListener('keydown', e=>e.preventDefault());
-    $('#reportFinale').addEventListener('paste',  e=>e.preventDefault());
-
-    // ==========================
-    // SEZIONE: Funzioni dominio (nomi in italiano)
-    // ==========================
-    function zoneSelezionate(){ return $$('#zoneChips .chip[aria-pressed="true"]').map(b=>b.dataset.value); }
-    function anomaliaSelezionata(){ const on = $('#anomaliaChips .chip[aria-checked="true"]'); return on ? on.dataset.value : ''; }
-    function impostaChips(containerSel, values){ const set = new Set(Array.isArray(values)?values:[]); $$(containerSel + ' .chip').forEach(b=> b.setAttribute('aria-pressed', set.has(b.dataset.value) ? 'true' : 'false')); }
-    function impostaChipRadio(containerSel, value){ $$(containerSel + ' .chip').forEach(b=> b.setAttribute('aria-checked', (b.dataset.value===value) ? 'true' : 'false')); }
-
-    function formattareDataItaliana(yyyy_mm_dd){ try { const [y,m,d] = (yyyy_mm_dd||'').split('-').map(s=>parseInt(s,10)); if (!y||!m||!d) return '—'; return new Intl.DateTimeFormat('it-IT').format(new Date(y, m-1, d)); } catch(e){ return '—'; } }
-
-    function costruisciOggettoEmail(){ const a = anomaliaSelezionata() || '—'; const i = ($('#impianto').value || '—').trim(); const d = formattareDataItaliana(($('#data').value || '').trim()); const o = ($('#operatore').value || '—').trim(); return `${a} ${i} - ${d} - ${o}`; }
-
-    function creaHrefMailto(){ const testo = $('#reportFinale').value || ''; const oggetto = costruisciOggettoEmail(); return 'mailto:' + LISTA_TO.join(',') + '?bcc=' + encodeURIComponent(EMAIL_BCC) + '&subject=' + encodeURIComponent(oggetto) + '&body=' + encodeURIComponent(testo); }
-
-    function campiMancanti(){ const miss = []; if (!($('#impianto').value || '').trim()) miss.push('Impianto'); if (!($('#data').value || '').trim()) miss.push('Data'); if (!($('#ora').value || '').trim()) miss.push('Orario'); if (!anomaliaSelezionata()) miss.push('Anomalia'); return miss; }
-
-    function evidenziaCampiMancanti(arr){ const m = { 'Impianto':'#impianto', 'Data':'#data', 'Orario':'#ora', 'Anomalia':'#anomaliaChips' }; Object.keys(m).forEach(k=> $(m[k]).classList.remove('invalid')); arr.forEach(k=> $(m[k]).classList.add('invalid')); }
-
-    function generaReport(){
-      const impianto = $('#impianto').value || '—';
-      const data     = $('#data').value || '—';
-      const ora      = $('#ora').value || '—';
-      const operatore= ($('#operatore').value || '').trim();
-      const zone     = zoneSelezionate();
-      const anomalia = anomaliaSelezionata() || '—';
-      const descr    = ($('#descrizione').value || '').trim();
-      const operaz   = ($('#operazioni').value || '').trim();
-
-      const righe = [
-        `IMPIANTO: ${impianto}`,
-        `DATA: ${data}`,
-        `ORA: ${ora}`,
-        (operatore ? `OPERATORE: ${operatore}` : 'OPERATORE: —'),
-        `ZONA: ${zone.length ? zone.join(', ') : '—'}`,
-        `ANOMALIA: ${anomalia}`,
-        '',
-        'DESCRIZIONE ANOMALIA:',
-        (descr || '—'),
-        '',
-        'OPERAZIONI EFFETTUATE:',
-        (operaz || '—')
-      ];
-      const testo = righe.join('\n');
-      $('#reportFinale').value = testo;
-
-      const nuovo = { impianto: $('#impianto').value || '', data: $('#data').value || '', ora: $('#ora').value || '', operatore: ($('#operatore').value || ''), zone, anomalia: anomaliaSelezionata() || '', descrizione: $('#descrizione').value || '', operazioni: $('#operazioni').value || '', report: testo };
-      stato = Object.assign({}, stato, nuovo);
-      const json = JSON.stringify(stato);
-      if (json !== ultimoSalvatoJson) { salvaStato(stato); ultimoSalvatoJson = json; }
-
-      aggiornaCollegamentoEmail(); aggiornaAbilitazioneAzioni();
+    async function drawHeader(ctx, wantLogo){
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,A4W,A4H);
+      if(wantLogo){
+        try{
+          const logo=await loadLogo();
+          const logoW=Math.min(A4W-MARGIN*2, 900);
+          const ratio=logo.height/logo.width || 0.33;
+          const logoH=Math.round(logoW*ratio);
+          const x=Math.round((A4W-logoW)/2);
+          ctx.drawImage(logo, x, MARGIN/2, logoW, logoH);
+          ctx.fillStyle='#000'; ctx.textAlign='center';
+          ctx.font='bold 44px Segoe UI, Arial';
+          ctx.fillText('UT Feltre - OU Quero', A4W/2, MARGIN/2 + logoH + 56);
+          ctx.font='600 28px Segoe UI, Arial';
+          ctx.fillText('Scheda Guasto', A4W/2, MARGIN/2 + logoH + 96);
+          return MARGIN/2 + logoH + 136;
+        }catch(e){ /* fallback to text-only header */ }
+      }
+      ctx.fillStyle='#000'; ctx.textAlign='center';
+      ctx.font='bold 44px Segoe UI, Arial';
+      ctx.fillText('UT Feltre - OU Quero', A4W/2, MARGIN);
+      ctx.font='600 28px Segoe UI, Arial';
+      ctx.fillText('Scheda Guasto', A4W/2, MARGIN+40);
+      return MARGIN+80;
     }
 
-    function aggiornaCollegamentoEmail(){ $('#btnEmail').setAttribute('href', creaHrefMailto()); }
+    async function renderTextPagesA4(text, withLogo){
+      const lines=text.split('\n'); const canvases=[];
+      let c=document.createElement('canvas'); c.width=A4W; c.height=A4H; let ctx=c.getContext('2d');
+      const MAXW=A4W-MARGIN*2, LH=30; let y=await drawHeader(ctx, withLogo); ctx.textAlign='left'; ctx.font='18px Segoe UI, Arial';
+      async function newPage(){ canvases.push(c); c=document.createElement('canvas'); c.width=A4W; c.height=A4H; ctx=c.getContext('2d'); y=await drawHeader(ctx, withLogo); ctx.textAlign='left'; ctx.font='18px Segoe UI, Arial'; }
+      for(const line of lines){ if(!line){ y+=LH; if(y>A4H-MARGIN) await newPage(); continue; } const parts=wrapText(ctx,line,MAXW); for(const p of parts){ if(y>A4H-MARGIN) await newPage(); ctx.fillStyle='#000'; ctx.fillText(p,MARGIN,y); y+=LH; } }
+      canvases.push(c); return canvases;
+    }
 
-    function aggiornaAbilitazioneAzioni(){ const haTesto = !!($('#reportFinale').value||'').trim(); $('#btnCopia').disabled = !haTesto; $('#btnCondividi').disabled = !haTesto; $('#btnEmail').classList.toggle('btn--primario', haTesto); $('#btnStampaPdf').disabled = !haTesto; $('#btnCondividiPdf').disabled = !haTesto; }
-
-    // ==========================
-    // SEZIONE: Condivisione PDF (robusta, senza librerie esterne)
-    // - Renderizza su Canvas (logo + intestazioni + testo) e crea un PDF 1.3 valido con una immagine JPEG a pagina intera
-    // ==========================
-    async function condividiPdf(){
-      const testo = ($('#reportFinale').value || '').trim();
-      if (!testo) return mostraToast(MESSAGGI.nullaDaCondividere);
-      try {
-        const canvas = await renderizzaReportSuCanvas(testo);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-        const jpegBytes = base64VersoUint8(dataUrl.split(',')[1]);
-        const pdfBytes = creaPdfSempliceDaJpeg(jpegBytes, canvas.width, canvas.height);
-        const blob = new Blob([pdfBytes], {type:'application/pdf'});
-        const file = new File([blob], 'report_guasto.pdf', {type:'application/pdf'});
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: costruisciOggettoEmail() });
-        } else {
-          // Fallback: download affidabile
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none'; a.href = url; a.download = 'report_guasto.pdf';
-          document.body.appendChild(a); a.click();
-          setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-          mostraToast(MESSAGGI.condivisionePdfNonSupportata);
+    async function renderImagePagesA4(urls){
+      const pages=[]; const pair=[];
+      async function makePage(images){
+        const c=document.createElement('canvas'); c.width=A4W; c.height=A4H; const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,A4W,A4H);
+        const areaW=A4W-MARGIN*2, areaH=A4H-MARGIN*2; const slotH=(areaH - 40) / images.length; // 40px spazio tra le due
+        let yCursor=MARGIN;
+        for(const dataUrl of images){
+          const img=await new Promise((resolve,reject)=>{ const im=new Image(); im.onload=()=>resolve(im); im.onerror=reject; im.src=dataUrl; });
+          const scale=Math.min(areaW/img.width, slotH/img.height);
+          const w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+          const x=Math.round((A4W - w)/2);
+          const y=Math.round(yCursor + (slotH - h)/2);
+          ctx.drawImage(img, x, y, w, h);
+          yCursor += slotH + 40;
         }
-      } catch (e){ console.error(e); mostraToast('Errore durante la creazione del PDF.'); }
-    }
-
-    function base64VersoUint8(b64){ const bin = atob(b64); const len = bin.length; const arr = new Uint8Array(len); for (let i=0;i<len;i++) arr[i] = bin.charCodeAt(i); return arr; }
-
-    // Costruisce un PDF 1.3 valido con una sola immagine JPEG
-    function creaPdfSempliceDaJpeg(jpegBytes, w, h){
-      const enc = new TextEncoder();
-      const chunks = [];
-      let offset = 0; const offsets = [0]; // index 0 is free
-      const NL = '\n';
-      const pushText = (s)=>{ const b = enc.encode(s); chunks.push(b); offset += b.length; };
-      const pushBytes = (b)=>{ chunks.push(b); offset += b.length; };
-
-      // Header
-      pushText('%PDF-1.3'+NL);
-
-      // 1 Catalog
-      offsets.push(offset); pushText('1 0 obj'+NL+'<< /Type /Catalog /Pages 2 0 R >>'+NL+'endobj'+NL);
-      // 2 Pages
-      offsets.push(offset); pushText('2 0 obj'+NL+'<< /Type /Pages /Kids [3 0 R] /Count 1 >>'+NL+'endobj'+NL);
-      // 3 Page
-      offsets.push(offset); pushText('3 0 obj'+NL+`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`+NL+'endobj'+NL);
-      // 4 Image XObject
-      offsets.push(offset);
-      pushText('4 0 obj'+NL+`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>`+NL+'stream'+NL);
-      pushBytes(jpegBytes);
-      pushText(NL+'endstream'+NL+'endobj'+NL);
-      // 5 Contents
-      const content = `q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`;
-      const contentLen = enc.encode(content).length + 2; // +2 per NL NL
-      offsets.push(offset);
-      pushText('5 0 obj'+NL+`<< /Length ${contentLen} >>`+NL+'stream'+NL);
-      pushText(content+NL);
-      pushText('endstream'+NL+'endobj'+NL);
-
-      // xref
-      const startxref = offset;
-      pushText('xref'+NL+'0 6'+NL+'0000000000 65535 f '+NL);
-      for (let i=1;i<=5;i++){
-        const off = String(offsets[i]).padStart(10,'0');
-        pushText(off+' 00000 n '+NL);
+        ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.font='16px Segoe UI, Arial'; ctx.fillText('Allegati fotografici', A4W/2, A4H-MARGIN/2);
+        return c;
       }
-      pushText('trailer'+NL+'<< /Size 6 /Root 1 0 R >>'+NL+'startxref'+NL+startxref+NL+'%%EOF');
-
-      // Concat finale
-      let totalLen = 0; chunks.forEach(c=> totalLen += c.length);
-      const out = new Uint8Array(totalLen); let pos = 0; chunks.forEach(c=>{ out.set(c, pos); pos += c.length; });
-      return out;
-    }
-
-    // Render canvas A4-like con logo + titoli + testo report
-    function avvolgiTesto(ctx, testo, maxWidth){
-      const parole = testo.split(/\s+/);
-      const righe = []; let riga = '';
-      for (let i=0;i<parole.length;i++){
-        const tent = riga ? (riga + ' ' + parole[i]) : parole[i];
-        if (ctx.measureText(tent).width <= maxWidth) { riga = tent; }
-        else { if (riga) righe.push(riga); riga = parole[i]; }
+      for(const u of urls){
+        pair.push(u);
+        if(pair.length===2){
+          pages.push(await makePage(pair.slice()));
+          pair.length=0;
+        }
       }
-      if (riga) righe.push(riga);
-      return righe;
+      if(pair.length){ pages.push(await makePage(pair.slice())); }
+      return pages;
     }
 
-    async function renderizzaReportSuCanvas(testo){
-      const W = 1654; // ~A4 @ ~150dpi
-      const M = 80;   // margine
-      const tmp = document.createElement('canvas'); const tctx = tmp.getContext('2d');
-      tctx.font = '18px "Segoe UI", Arial, sans-serif';
-      const blocchi = testo.split('\n');
-      let righeTot = 0; const MAXW = W - M*2;
-      blocchi.forEach(linea=>{ if (!linea) { righeTot += 1; return; } const wr = avvolgiTesto(tctx, linea, MAXW); righeTot += Math.max(1, wr.length); });
-      const headerH = 500; // spazio per logo + titoli
-      const rigaH = 28; const H = headerH + 100 + righeTot * rigaH;
+    function makePdfFromJpegs(pages){ const enc=new TextEncoder(); const chunks=[]; let offset=0; const NL='\n'; const pushText=(s)=>{const b=enc.encode(s);chunks.push(b);offset+=b.length}; const pushBytes=(b)=>{chunks.push(b);offset+=b.length}; pushText('%PDF-1.3'+NL); const rootId=1,pagesId=2; let nextId=3; const kids=[]; const objOffsets=[0]; const writeObj=(id,c)=>{objOffsets[id]=offset; pushText(id+' 0 obj'+NL+c+NL+'endobj'+NL);}; for(const p of pages){ const pageId=nextId++, imgId=nextId++, contId=nextId++; kids.push(pageId+' 0 R'); writeObj(imgId, `<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>`+NL+'stream'+NL); pushBytes(p.bytes); pushText(NL+'endstream'+NL); const content=`q ${p.w} 0 0 ${p.h} 0 0 cm /Im0 Do Q`; const len=enc.encode(content).length+2; writeObj(contId, `<< /Length ${len} >>`+NL+'stream'+NL+content+NL+'endstream'); writeObj(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${p.w} ${p.h}] /Resources << /XObject << /Im0 ${imgId} 0 R >> >> /Contents ${contId} 0 R >>`); } writeObj(pagesId, `<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`); writeObj(rootId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`); const startxref=offset; const count=nextId-1; pushText('xref'+NL+'0 '+(count+1)+NL+'0000000000 65535 f '+NL); for(let i=1;i<=count;i++){ const off=String(objOffsets[i]||0).padStart(10,'0'); pushText(off+' 00000 n '+NL); } pushText('trailer'+NL+`<< /Size ${count+1} /Root ${rootId} 0 R >>`+NL+'startxref'+NL+startxref+NL+'%%EOF'); let total=0; for(const c of chunks) total+=c.length; const out=new Uint8Array(total); let pos=0; for(const c of chunks){ out.set(c,pos); pos+=c.length; } return out; }
 
-      const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H; const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,W,H);
-
-      // Logo
-      const img = await caricaImmagine('logo_egp.png');
-      const logoH = 400; const ratio = img.width ? (img.height/img.width) : (1/3);
-      const logoW = Math.min(W - M*2, Math.round(logoH / ratio));
-      const logoX = Math.round((W - logoW)/2);
-      ctx.drawImage(img, logoX, 60, logoW, logoH);
-
-      // Titoli
-      ctx.fillStyle = '#000';
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 46px "Segoe UI", Arial, sans-serif';
-      ctx.fillText('UT Feltre - OU Quero', W/2, 60 + logoH + 60);
-      ctx.font = '600 30px "Segoe UI", Arial, sans-serif';
-      ctx.fillText('Scheda Guasto', W/2, 60 + logoH + 60 + 40);
-
-      // Testo report
-      ctx.textAlign = 'left';
-      let y = 60 + logoH + 60 + 40 + 50;
-      ctx.font = '18px "Segoe UI", Arial, sans-serif';
-      blocchi.forEach(linea=>{
-        if (!linea){ y += rigaH; return; }
-        const parti = avvolgiTesto(ctx, linea, MAXW);
-        parti.forEach(p=>{ ctx.fillText(p, M, y); y += rigaH; });
-      });
-
-      return canvas;
+    async function canvasesToJpegsSafe(canvases){
+      const result=[];
+      for(const c of canvases){
+        try{
+          const dataUrl=c.toDataURL('image/jpeg',0.92);
+          const b64=dataUrl.split(',')[1]; const bin=atob(b64); const len=bin.length; const u8=new Uint8Array(len); for(let i=0;i<len;i++) u8[i]=bin.charCodeAt(i);
+          result.push({bytes:u8, w:c.width, h:c.height});
+        }catch(e){
+          throw new Error('TAINTED');
+        }
+      }
+      return result;
     }
 
-    function caricaImmagine(src){ return new Promise((res,rej)=>{ const i = new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; }); }
+    async function createMultipagePdf(){
+      const text=($('#reportFinale').value||'').trim(); if(!text){ showToast(MSG.nothingToPrint); return null; }
+      // First try with logo
+      let canvases = await renderTextPagesA4(text, true);
+      const urls=[state.images[1],state.images[2],state.images[3]].filter(Boolean);
+      if(urls.length){ const imgPages=await renderImagePagesA4(urls); canvases = canvases.concat(imgPages); }
+      try{
+        const pages=await canvasesToJpegsSafe(canvases);
+        const pdfBytes=makePdfFromJpegs(pages); return new Blob([pdfBytes],{type:'application/pdf'});
+      }catch(err){
+        // Likely tainted by logo under file://. Retry without logo.
+        showToast(MSG.logoSkipped);
+        canvases = await renderTextPagesA4(text, false);
+        if(urls.length){ const imgPages=await renderImagePagesA4(urls); canvases = canvases.concat(imgPages); }
+        const pages=await canvasesToJpegsSafe(canvases);
+        const pdfBytes=makePdfFromJpegs(pages); return new Blob([pdfBytes],{type:'application/pdf'});
+      }
+    }
 
-    // ==========================
-    // SEZIONE: Eventi UI
-    // ==========================
-    const onInputRitardato = debounce(generaReport, 200);
-    $('#operatore').addEventListener('input', onInputRitardato);
-    $('#descrizione').addEventListener('input', onInputRitardato);
-    $('#operazioni').addEventListener('input', onInputRitardato);
-
-    $('#impianto').addEventListener('change', generaReport);
-    $('#data').addEventListener('change', generaReport);
-    $('#ora').addEventListener('change', generaReport);
-
-    $('#zoneChips').addEventListener('click', (e)=>{ const btn = e.target.closest('.chip'); if (!btn) return; const p = btn.getAttribute('aria-pressed') === 'true'; btn.setAttribute('aria-pressed', String(!p)); generaReport(); });
-    $('#anomaliaChips').addEventListener('click', (e)=>{ const btn = e.target.closest('.chip[role="radio"]'); if (!btn) return; const was = btn.getAttribute('aria-checked') === 'true'; if (was) btn.setAttribute('aria-checked','false'); else { $$('#anomaliaChips .chip').forEach(b=> b.setAttribute('aria-checked','false')); btn.setAttribute('aria-checked','true'); } generaReport(); });
-
-    $('#btnNuovoReport').addEventListener('click', ()=>{ pulisciTutto(); generaReport(); });
-
-    $('#btnCopia').addEventListener('click', ()=>{ const ta = $('#reportFinale'); const msg = $('#copiedMsg'); if (!ta.value.trim()) { msg.textContent = MESSAGGI.nullaDaCopiare; return; } if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(ta.value).then(()=>{ msg.textContent = MESSAGGI.copiato; setTimeout(()=>{ msg.textContent=''; }, 1500); }).catch(()=>{ copiaFallback(ta, msg); }); } else { copiaFallback(ta, msg); } });
-    function copiaFallback(ta, msg){ ta.select(); document.execCommand('copy'); msg.textContent = MESSAGGI.copiatoFallback; setTimeout(()=>{ msg.textContent=''; }, 1500); }
-
-    $('#btnCondividi').addEventListener('click', ()=>{ const miss = campiMancanti(); if (miss.length){ evidenziaCampiMancanti(miss); return mostraToast(MESSAGGI.mancano(miss)); } const testo = $('#reportFinale').value || ''; const oggetto = costruisciOggettoEmail(); if (!testo.trim()) return mostraToast(MESSAGGI.nullaDaCondividere); if (AMBIENTE.puoCondividere) { navigator.share({ title: oggetto, text: testo }).catch(()=>{}); } else { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(testo); } mostraToast(MESSAGGI.condivisioneNonSupportata); } });
-
-    $('#btnEmail').addEventListener('click', (e)=>{ const miss = campiMancanti(); if (miss.length){ e.preventDefault(); evidenziaCampiMancanti(miss); return mostraToast(MESSAGGI.mancano(miss)); } const testo = ($('#reportFinale').value || ''); if (!testo.trim()) { e.preventDefault(); return mostraToast(MESSAGGI.nullaDaInviare); } if (AMBIENTE.firefoxAndroid){ e.preventDefault(); if (AMBIENTE.puoCondividere) { navigator.share({ title: costruisciOggettoEmail(), text: testo }).catch(()=>{}); } else { mostraToast(MESSAGGI.firefoxUsaCondividi); } } });
-
-    $('#btnStampaPdf').addEventListener('click', ()=>{ const raw = $('#reportFinale').value || ''; if (!raw.trim()) return mostraToast(MESSAGGI.nienteDaStampare); const testo = scappaHtml(raw); const pageLogo = document.querySelector('.logo'); const baseH = (pageLogo && pageLogo.clientHeight) ? pageLogo.clientHeight : 80; const printH = Math.max(200, baseH * 5); const w = window.open('', '_blank'); if (!w) return mostraToast(MESSAGGI.popupBloccato); w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Report guasto</title><style>@page{ margin: 12mm; } body{ font: 11.5pt \"Segoe UI\", -apple-system, system-ui, \"Helvetica Neue\", Arial, sans-serif; color:#111; } .header{ text-align:center; margin: 0 0 10mm; } .header img{ height:${printH}px; width:auto; display:inline-block; } .title{ font-size: 18pt; font-weight: 700; letter-spacing:.2px; margin: 6px 0 2px; white-space: nowrap; } .subtitle{ font-size: 12.5pt; color:#444; margin: 0 0 8mm; white-space: nowrap; } .container{ max-width: 180mm; margin: 0 auto; } pre.report-text{ white-space: pre-wrap; word-break: break-word; border:1px solid #cfd4dc; border-radius:8px; padding: 10mm 8mm; line-height: 1.5; background:#fff; font-variant-numeric: tabular-nums; font-family: \"Segoe UI\", Arial, sans-serif; }</style></head><body><div class=\"header\"><img src=\"logo_egp.png\" alt=\"Enel Green Power\"/><div class=\"title\">UT Feltre - OU Quero</div><div class=\"subtitle\">Scheda Guasto</div></div><div class=\"container\"><pre class=\"report-text\">${testo}</pre></div><script>const img = document.querySelector('.header img'); function go(){ window.focus(); window.print(); } if (img && !img.complete) img.addEventListener('load', go); else go();<\/script></body></html>`); w.document.close(); });
-
-    $('#btnCondividiPdf').addEventListener('click', ()=>{ const miss = campiMancanti(); if (miss.length){ evidenziaCampiMancanti(miss); return mostraToast(MESSAGGI.mancano(miss)); } condividiPdf(); });
-
-    // ==========================
-    // SEZIONE: Toast
-    // ==========================
-    let timerToast = null; function mostraToast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(timerToast); timerToast = setTimeout(()=> t.classList.remove('show'), 3000); }
-
-    // Avvio iniziale
-    const onInputDebounce = debounce(generaReport, 200);
-    generaReport();
+    // Init
+    function resetAll(){
+      $('#impianto').value=''; $('#data').value=nowDate(); $('#ora').value=nowTime(); $('#operatore').value=''; $('#descrizione').value=''; $('#operazioni').value=''; $('#reportFinale').value='';
+      $$('#zoneChips .chip').forEach(b=>b.setAttribute('aria-pressed','false')); $$('#anomaliaChips .chip').forEach(b=>b.setAttribute('aria-checked','false'));
+      [1,2,3].forEach(i=>resetImageSlot(i)); updateActionState(); buildReport();
+    }
+    function init(){
+      document.title='Generatore report '+CONFIG.VERSION; $('#versionBadge').textContent='Generatore di report • '+CONFIG.VERSION;
+      const sel=$('#impianto'); CONFIG.PLANTS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+      // Bind chips
+      $('#zoneChips').addEventListener('click', e=>{ const b=e.target.closest('.chip'); if(!b) return; const v=b.getAttribute('aria-pressed')==='true'; b.setAttribute('aria-pressed', String(!v)); buildReport(); });
+      $('#anomaliaChips').addEventListener('click', e=>{ const b=e.target.closest('.chip[role="radio"]'); if(!b) return; $$('#anomaliaChips .chip').forEach(x=>x.setAttribute('aria-checked','false')); b.setAttribute('aria-checked','true'); buildReport(); });
+      // Inputs
+      const onInput=debounce(buildReport,200);
+      $('#impianto').addEventListener('change',buildReport); $('#data').addEventListener('change',buildReport); $('#ora').addEventListener('change',buildReport);
+      $('#operatore').addEventListener('input',onInput); $('#descrizione').addEventListener('input',onInput); $('#operazioni').addEventListener('input',onInput);
+      // Lock textarea
+      $('#reportFinale').addEventListener('keydown', e=>e.preventDefault()); $('#reportFinale').addEventListener('paste', e=>e.preventDefault());
+      // Image slots
+      [1,2,3].forEach(i=>bindImageSlot(i));
+      // Buttons
+      $('#btnReset').addEventListener('click', ()=>{ resetAll(); });
+      $('#btnCopy').addEventListener('click', async ()=>{ const text=$('#reportFinale').value||''; if(!text.trim()) return showToast(MSG.nothingToCopy); if(!navigator.clipboard || !navigator.clipboard.writeText) return showToast('Clipboard API non disponibile.'); try{ await navigator.clipboard.writeText(text); $('#copiedMsg').textContent=MSG.copied; setTimeout(()=>$('#copiedMsg').textContent='',1500); }catch(e){ showToast('Errore copia.'); } });
+      $('#btnPrintPdf').addEventListener('click', async ()=>{ try{ const blob=await createMultipagePdf(); if(!blob) return; const url=URL.createObjectURL(blob); const w=window.open(url,'_blank'); if(!w) showToast(MSG.popupBlocked); setTimeout(()=>URL.revokeObjectURL(url),20000); }catch(e){ console.error(e); showToast(MSG.pdfError); } });
+      $('#btnDownloadPdf').addEventListener('click', async ()=>{ try{ const blob=await createMultipagePdf(); if(!blob) return; const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='report_guasto.pdf'; document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(url);},1000); }catch(e){ console.error(e); showToast(MSG.pdfError); } });
+      // Start clean with system date/time
+      resetAll();
+    }
+    window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
