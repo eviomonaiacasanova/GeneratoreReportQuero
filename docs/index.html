@@ -2,10 +2,10 @@
 <html lang="it">
 <head>
   <!-- Generatore schede guasti – UT Feltre / OU Quero
-       Versione: v5.3.5 (PDF senza logo, testo grande e leggibile su mezza pagina) -->
+       Versione: v5.3.8 (PDF: testo a sinistra con indentazione; niente logo; layout richiesto) -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Generatore report v5.3.5</title>
+  <title>Generatore report v5.3.8</title>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; connect-src 'none'">
@@ -128,32 +128,28 @@
 
   <footer>
     <div class="footer-inner">
-      <span class="badge" id="versionBadge">Generatore di report • v5.3.5</span>
+      <span class="badge" id="versionBadge">Generatore di report • v5.3.8</span>
       <span class="dot">•</span>
       <span class="muted">Uso interno Enel Green Power</span>
     </div>
   </footer>
 
   <script>
-    const CONFIG = { VERSION:'v5.3.5', PLANTS:[ 'ALTANON','ANZU','ARCADE','BUSCHE DMV','BUSCHE SBARRAMENTO','CAERANO','CASTELVIERO','CROCE DEL GALLO','FONDERIA','PEDEROBBA','POMPE SONNA','PONTE PIETRA','PONTE SAN MARTINO','PRIULA','QUERO','SPEEDY','SPRESIANO','TAVARAN' ] };
+    const CONFIG = { VERSION:'v5.3.8', PLANTS:[ 'ALTANON','ANZU','ARCADE','BUSCHE DMV','BUSCHE SBARRAMENTO','CAERANO','CASTELVIERO','CROCE DEL GALLO','FONDERIA','PEDEROBBA','POMPE SONNA','PONTE PIETRA','PONTE SAN MARTINO','PRIULA','QUERO','SPEEDY','SPRESIANO','TAVARAN' ] };
     const MSG = { nothingToCopy:'Niente da copiare.', copied:'Copiato!', nothingToPrint:'Niente da stampare.', pdfError:'Errore durante la creazione del PDF.', popupBlocked:'Popup bloccato.' };
 
     const state = { images:{1:null,2:null,3:null} };
     const $=(s)=>document.querySelector(s); const $$=(s)=>Array.from(document.querySelectorAll(s));
     const debounce=(fn,d=200)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d);};};
 
-    // Toast
     let toastTimer=null; function showToast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500); }
 
-    // Helpers
     function nowDate(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
     function nowTime(){ const d=new Date(); const hh=String(d.getHours()).padStart(2,'0'); const mm=String(d.getMinutes()).padStart(2,'0'); return `${hh}:${mm}`; }
 
-    // Chips
     function selectedZones(){ return $$('#zoneChips .chip[aria-pressed="true"]').map(b=>b.dataset.value); }
     function selectedAnomaly(){ const on=$('#anomaliaChips .chip[aria-checked="true"]'); return on?on.dataset.value:''; }
 
-    // Report
     function buildReport(){
       const plant=$('#impianto').value||'—'; const date=$('#data').value||'—'; const time=$('#ora').value||'—';
       const operator=($('#operatore').value||'').trim(); const zones=selectedZones(); const anomaly=selectedAnomaly()||'—';
@@ -163,7 +159,6 @@
     }
     function updateActionState(){ const hasText=!!(($('#reportFinale').value||'').trim()); $('#btnCopy').disabled=!hasText; $('#btnPrintPdf').disabled=!hasText; $('#btnDownloadPdf').disabled=!hasText; }
 
-    // Images
     function resetImageSlot(i){ const img=$('#preview'+i); img.removeAttribute('src'); img.style.visibility='hidden'; $('#btnDelete'+i).disabled=true; const f=$('#file'+i); if(f) f.value=''; state.images[i]=null; }
     function setImagePreview(i, dataUrl){ const img=$('#preview'+i); img.src=dataUrl; img.style.visibility='visible'; $('#btnDelete'+i).disabled=false; state.images[i]=dataUrl; }
     function bindImageSlot(i){
@@ -174,37 +169,38 @@
       btnD.addEventListener('click', ()=> resetImageSlot(i));
     }
 
-    // PDF (no logo, larger text; page 1 top half text, bottom half first photo; page 2 two photos half page each)
-    const A4W=1654, A4H=2339, MARGIN=100;
+    // PDF rendering (no logo, left-align with indent)
+    const A4W=1654, A4H=2339, MARGIN=100, INDENT=28;
     function wrapText(ctx, text, maxW){ const words=(text||'').split(/\s+/); const lines=[]; let line=''; for(const w of words){ const test=line?line+' '+w:w; if(ctx.measureText(test).width<=maxW) line=test; else{ if(line) lines.push(line); line=w; } } if(line) lines.push(line); return lines; }
 
     async function drawHeader(ctx){
       ctx.fillStyle='#fff'; ctx.fillRect(0,0,A4W,A4H);
-      ctx.fillStyle='#000'; ctx.textAlign='center';
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#000';
       ctx.font='bold 48px Segoe UI, Arial'; ctx.fillText('UT Feltre - OU Quero', A4W/2, MARGIN);
-      ctx.font='600 32px Segoe UI, Arial'; ctx.fillText('Scheda Guasto', A4W/2, MARGIN+38);
-      return MARGIN+76;
+      ctx.font='600 32px Segoe UI, Arial'; ctx.fillText('Scheda Guasto', A4W/2, MARGIN+54);
+      ctx.textAlign='left';
+      return MARGIN+96;
     }
 
     function drawLabelValue(ctx, label, value, x, y, maxW){
-      ctx.font='bold 28px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText(label, x, y);
-      ctx.font='24px Segoe UI, Arial'; ctx.fillStyle='#000';
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.font='bold 30px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText(label, x, y);
+      ctx.font='26px Segoe UI, Arial'; ctx.fillStyle='#000';
       const lines=wrapText(ctx, value||'—', maxW);
-      let yy=y+30;
-      for(const ln of lines){ ctx.fillText(ln, x, yy); yy+=28; }
-      return yy+10;
+      let yy=y+36;
+      for(const ln of lines){ ctx.fillText(ln, x, yy); yy+=32; }
+      return yy+12;
     }
 
     async function renderFirstPage(text, firstImageUrl){
       const c=document.createElement('canvas'); c.width=A4W; c.height=A4H; const ctx=c.getContext('2d');
       let y = await drawHeader(ctx);
       const topAreaBottom = Math.round(A4H/2);
-      const left=MARGIN, right=A4W-MARGIN, maxW=right-left;
+      const left=MARGIN + INDENT, right=A4W - MARGIN - INDENT, maxW=right-left;
 
-      // Parse text to fields
+      // Parse fields
       const lines=text.split('\n');
-      const map={};
-      let section='';
+      const map={}; let section='';
       for(const ln of lines){
         if(/^IMPIANTO:/.test(ln)) map.plant=ln.replace('IMPIANTO: ','').trim();
         else if(/^DATA:/.test(ln)) map.date=ln.replace('DATA: ','').trim();
@@ -217,26 +213,23 @@
         else { if(section==='desc'){ map.desc=(map.desc||'')+(map.desc?'\n':'')+ln; } else if(section==='ops'){ map.ops=(map.ops||'')+(map.ops?'\n':'')+ln; } }
       }
 
-      // Big readable text in top half
+      // Text block
       y = drawLabelValue(ctx, 'Impianto', map.plant||'—', left, y, maxW);
-
       const rowTop = y;
-      y = drawLabelValue(ctx, 'Data', map.date||'—', left, y, Math.floor(maxW/2)-20);
-      const yAfterDate = y;
+      const yData = drawLabelValue(ctx, 'Data', map.date||'—', left, y, Math.floor(maxW/2)-20);
       const yOra = drawLabelValue(ctx, 'Ora', map.time||'—', left + Math.floor(maxW/2)+40, rowTop, Math.floor(maxW/2)-20);
-      y = Math.max(yAfterDate, yOra);
-
+      y = Math.max(yData, yOra);
       y = drawLabelValue(ctx, 'Operatore', map.operator||'—', left, y, maxW);
       y = drawLabelValue(ctx, 'Zona', map.zone||'—', left, y, maxW);
       y = drawLabelValue(ctx, 'Anomalia', map.anomaly||'—', left, y, maxW);
 
-      ctx.font='bold 28px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText('Descrizione anomalia', left, y+6);
-      y+=36; ctx.font='24px Segoe UI, Arial'; ctx.fillStyle='#000';
-      for(const ln of wrapText(ctx, map.desc||'—', maxW)){ if(y>topAreaBottom-20) break; ctx.fillText(ln,left,y); y+=30; }
+      ctx.textAlign='left'; ctx.textBaseline='top'; ctx.font='bold 30px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText('Descrizione anomalia', left, y+8);
+      y+=40; ctx.font='26px Segoe UI, Arial'; ctx.fillStyle='#000';
+      for(const ln of wrapText(ctx, map.desc||'—', maxW)){ if(y>topAreaBottom-24) break; ctx.fillText(ln,left,y); y+=34; }
 
-      ctx.font='bold 28px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText('Operazioni effettuate', left, y+24);
-      y+=52; ctx.font='24px Segoe UI, Arial'; ctx.fillStyle='#000';
-      for(const ln of wrapText(ctx, map.ops||'—', maxW)){ if(y>topAreaBottom-20) break; ctx.fillText(ln,left,y); y+=30; }
+      ctx.textAlign='left'; ctx.textBaseline='top'; ctx.font='bold 30px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText('Operazioni effettuate', left, y+24);
+      y+=56; ctx.font='26px Segoe UI, Arial'; ctx.fillStyle='#000';
+      for(const ln of wrapText(ctx, map.ops||'—', maxW)){ if(y>topAreaBottom-24) break; ctx.fillText(ln,left,y); y+=34; }
 
       // Bottom half: first image
       if(firstImageUrl){
@@ -248,6 +241,8 @@
             ctx.drawImage(img, x, yy, w, h); resolve();
           }; img.onerror=reject; img.src=firstImageUrl;
         });
+      } else {
+        ctx.strokeStyle='#ddd'; ctx.lineWidth=2; ctx.strokeRect(MARGIN, topAreaBottom+20, A4W-MARGIN*2, A4H - (topAreaBottom+20) - MARGIN);
       }
       return c;
     }
@@ -256,9 +251,9 @@
       if(!remainingUrls.length) return null;
       const c=document.createElement('canvas'); c.width=A4W; c.height=A4H; const ctx=c.getContext('2d');
       ctx.fillStyle='#fff'; ctx.fillRect(0,0,A4W,A4H);
-      ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.font='600 28px Segoe UI, Arial'; ctx.fillText('Allegati fotografici', A4W/2, MARGIN);
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#000'; ctx.font='600 30px Segoe UI, Arial'; ctx.fillText('Allegati fotografici', A4W/2, MARGIN);
 
-      const areaTop=MARGIN+20, areaBottom=A4H-MARGIN; const totalH=areaBottom-areaTop; const slotH=(totalH-40)/2;
+      const areaTop=MARGIN+30, areaBottom=A4H-MARGIN; const totalH=areaBottom-areaTop; const slotH=(totalH-40)/2;
       let yCursor=areaTop;
       for(let i=0;i<Math.min(2, remainingUrls.length); i++){
         const url=remainingUrls[i];
@@ -318,7 +313,6 @@
       const pdfBytes=makePdfFromJpegs(pages); return new Blob([pdfBytes],{type:'application/pdf'});
     }
 
-    // Init
     function resetAll(){
       $('#impianto').value=''; $('#data').value=nowDate(); $('#ora').value=nowTime(); $('#operatore').value=''; $('#descrizione').value=''; $('#operazioni').value=''; $('#reportFinale').value='';
       $$('#zoneChips .chip').forEach(b=>b.setAttribute('aria-pressed','false')); $$('#anomaliaChips .chip').forEach(b=>b.setAttribute('aria-checked','false'));
@@ -327,23 +321,17 @@
     function init(){
       document.title='Generatore report '+CONFIG.VERSION; $('#versionBadge').textContent='Generatore di report • '+CONFIG.VERSION;
       const sel=$('#impianto'); CONFIG.PLANTS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
-      // Bind chips
       $('#zoneChips').addEventListener('click', e=>{ const b=e.target.closest('.chip'); if(!b) return; const v=b.getAttribute('aria-pressed')==='true'; b.setAttribute('aria-pressed', String(!v)); buildReport(); });
       $('#anomaliaChips').addEventListener('click', e=>{ const b=e.target.closest('.chip[role="radio"]'); if(!b) return; $$('#anomaliaChips .chip').forEach(x=>x.setAttribute('aria-checked','false')); b.setAttribute('aria-checked','true'); buildReport(); });
-      // Inputs
       const onInput=debounce(buildReport,200);
       $('#impianto').addEventListener('change',buildReport); $('#data').addEventListener('change',buildReport); $('#ora').addEventListener('change',buildReport);
       $('#operatore').addEventListener('input',onInput); $('#descrizione').addEventListener('input',onInput); $('#operazioni').addEventListener('input',onInput);
-      // Lock textarea
       $('#reportFinale').addEventListener('keydown', e=>e.preventDefault()); $('#reportFinale').addEventListener('paste', e=>e.preventDefault());
-      // Image slots
       [1,2,3].forEach(i=>bindImageSlot(i));
-      // Buttons
       $('#btnReset').addEventListener('click', ()=>{ resetAll(); });
       $('#btnCopy').addEventListener('click', async ()=>{ const text=$('#reportFinale').value||''; if(!text.trim()) return showToast(MSG.nothingToCopy); if(!navigator.clipboard || !navigator.clipboard.writeText) return showToast('Clipboard API non disponibile.'); try{ await navigator.clipboard.writeText(text); $('#copiedMsg').textContent=MSG.copied; setTimeout(()=>$('#copiedMsg').textContent='',1500); }catch(e){ showToast('Errore copia.'); } });
       $('#btnPrintPdf').addEventListener('click', async ()=>{ try{ const blob=await createMultipagePdf(); if(!blob) return; const url=URL.createObjectURL(blob); const w=window.open(url,'_blank'); if(!w) showToast(MSG.popupBlocked); setTimeout(()=>URL.revokeObjectURL(url),20000); }catch(e){ console.error(e); showToast(MSG.pdfError); } });
       $('#btnDownloadPdf').addEventListener('click', async ()=>{ try{ const blob=await createMultipagePdf(); if(!blob) return; const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='report_guasto.pdf'; document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(url);},1000); }catch(e){ console.error(e); showToast(MSG.pdfError); } });
-      // Start
       resetAll();
     }
     window.addEventListener('DOMContentLoaded', init);
