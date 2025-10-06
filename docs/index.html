@@ -1,340 +1,355 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <!-- Generatore schede guasti – UT Feltre / OU Quero
-       Versione: v5.3.8 (PDF: testo a sinistra con indentazione; niente logo; layout richiesto) -->
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Generatore report v5.3.8</title>
-  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
-  <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; connect-src 'none'">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generatore report v5.3.10</title>
+  <meta name="robots" content="noindex,nofollow">
   <style>
-    :root { --bg:#0b0c10; --panel:#121318; --border:#23242a; --muted:#aeb3bb; --text:#e6e6e6; --surface:#181a21; --accent:#4e8df5; --danger:#c0392b; --danger-border:#b23427; --gap:12px; --radius:10px; --shadow:0 10px 30px rgba(0,0,0,.35); }
-    *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:900px;margin:24px auto;padding:0 16px 108px}
-    h1.title{margin:0 0 18px;display:flex;align-items:center;justify-content:center;gap:14px;text-align:center}
-    .logo{height:80px;object-fit:contain}
-    .titlestack{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15}
-    .titlestack .line1{font-size:1.4rem;font-weight:800}
-    .titlestack .line2{font-size:1.05rem;color:var(--muted);margin-top:2px}
-    form{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--gap);background:var(--panel);padding:18px;border-radius:var(--radius);border:1px solid var(--border)}
-    .field{display:flex;flex-direction:column;gap:6px} .full{grid-column:1 / -1} label,legend{font-weight:600;font-size:.95rem} .nota-legenda{color:var(--muted);font-size:.9rem;margin:2px 0 6px}
-    select,input[type=date],input[type=time],input[type=text],textarea{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px}
-    select:focus,input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,141,245,.15)} textarea{min-height:110px;resize:vertical}
-    .azioni{display:flex;gap:10px;flex-wrap:wrap;align-items:center} .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:700;cursor:pointer}
-    .btn--primario{background:var(--accent);border-color:var(--accent);color:#fff} .btn--pericolo{background:var(--danger);border-color:var(--danger-border);color:#fff} .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .chips{display:flex;flex-wrap:wrap;gap:10px} .chip{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
-    .chip[aria-pressed=true],.chip[aria-checked=true]{background:#27447c;border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,141,245,.18) inset}
-    #anomaliaChips{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .report-area{width:100%;min-height:150px;user-select:text;font-family:ui-monospace,Menlo,Consolas,monospace}
-    .muted{color:var(--muted);font-size:.9rem} .invalid{border-color:#d15757!important;box-shadow:0 0 0 3px rgba(209,87,87,.15)!important}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--gap)} .foto-card{border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:10px;display:flex;flex-direction:column;gap:10px}
-    .foto-preview{display:block;width:100%;aspect-ratio:4/3;background:#0f1117;border:1px dashed #3a3d44;border-radius:8px;object-fit:contain;visibility:hidden}
-    .foto-actions{display:flex;gap:8px} input[type=file].hidden{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-    #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:#1e232b;color:#fff;padding:12px 14px;border-radius:10px;border:1px solid #333a44;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .24s,transform .24s;max-width:92vw;font-size:.95rem;z-index:9999}
-    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    footer{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(18,19,24,0),rgba(18,19,24,.85) 20%,var(--panel) 55%)}
-    .footer-inner{max-width:900px;margin:0 auto;padding:10px 16px 12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;font-size:.88rem;color:#d0d4db}
-    .footer-inner .dot{opacity:.7;padding:0 8px} .badge{padding:3px 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:#dfe3ea;font-weight:700;font-size:.82rem}
-    @media print{html,body{background:#fff;color:#000}.wrap{padding:0 0 8px} .azioni{display:none!important} .chip{border-color:#777;background:#fff;color:#000;box-shadow:none!important} footer{position:static;background:#fff;border-top:1px solid #888} .footer-inner{color:#000;justify-content:space-between} .badge{background:#fff;border-color:#888;color:#000} textarea.report-area{white-space:pre-wrap}}
+    :root { --bg:#0b0c10; --panel:#14161c; --ink:#e9eef7; --muted:#aab2bf; --accent:#4e8df5; --line:#2a2e36; }
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:920px;margin:28px auto 100px;padding:0 16px}
+    h1{margin:0 0 18px;display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center}
+    .logo{height:90px;width:120px;object-fit:contain}
+    .subtitle{color:var(--muted);font-size:.95rem}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .full{grid-column:1 / -1}
+    label{display:block;font-weight:700;margin-bottom:6px}
+    select,input[type=date],input[type=time],input[type=text],textarea{background:#1a1d25;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink)}
+    textarea{min-height:110px;resize:vertical;white-space:pre-wrap}
+    .chips{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{border:1px solid var(--line);background:#1a1d25;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700}
+    .chip[data-on="1"]{background:#223b6f;border-color:#3e6ddc}
+    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .btn{background:#1a1d25;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .muted{color:var(--muted);font-size:.9rem}
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .slot{border:1px dashed var(--line);border-radius:10px;padding:10px;display:grid;gap:8px}
+    .slot img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#0e1116;border-radius:6px}
+    .slot .row{display:flex;gap:8px}
+    .slot input[type=file]{display:none}
+    footer{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(20,22,28,0),rgba(20,22,28,1) 40%)}
+    .foot{max-width:920px;margin:0 auto;padding:10px 16px 14px;display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted)}
+    .badge{border:1px solid var(--line);background:#1a1d25;border-radius:999px;padding:4px 10px;color:#dfe6f2;font-weight:800}
+    .print-root{display:none}
+    .print-header{text-align:center;margin-bottom:18px}
+    .print-header .big-logo{max-width:70%;height:auto;margin:12px auto 6px;display:block}
+    .kv{margin-bottom:8px}.kv b{display:inline-block;min-width:140px}
+    .section-title{margin:16px 0 6px;font-weight:800}
+    .print-gallery{margin-top:12px;display:grid;grid-template-columns:1fr;gap:12px}
+    .print-gallery img{width:100%;max-height:20cm;object-fit:contain}
+    @media print{
+      body{background:#fff;color:#000}
+      .wrap,footer{display:none !important}
+      .print-root{display:block;padding:1.2cm 1.4cm;font-size:12pt}
+      .page-break{break-after:page}
+      .waterline{margin-top:12px;text-align:center;color:#333;font-size:10pt}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1 class="title">
-      <img class="logo" src="logo_egp.png" alt="Enel Green Power"/>
-      <span class="titlestack"><span class="line1">Generatore schede guasti</span><span class="line2">UT Feltre - OU Quero</span></span>
+    <h1>
+      <img class="logo" src="logo_egp.png" alt="Logo">
+      <div>
+        <div style="font-weight:900;font-size:1.4rem">Generatore schede guasti</div>
+        <div class="subtitle">UT Feltre • OU Quero</div>
+      </div>
     </h1>
 
-    <form id="formReport" novalidate>
-      <div class="field">
-        <label for="impianto">Impianto</label>
-        <select id="impianto" required>
-          <option value="" disabled selected>— seleziona impianto —</option>
-        </select>
+    <div class="panel">
+      <div class="grid">
+        <div class="full">
+          <label for="impianto">Impianto</label>
+          <select id="impianto">
+            <option value="" selected>— seleziona impianto —</option>
+          </select>
+        </div>
+        <div>
+          <label for="data">Data anomalia</label>
+          <input type="date" id="data">
+        </div>
+        <div>
+          <label for="ora">Orario anomalia</label>
+          <input type="time" id="ora">
+        </div>
+        <div>
+          <label for="operatore">Operatore</label>
+          <input type="text" id="operatore" placeholder="Nome e cognome o sigla">
+        </div>
+        <div class="full">
+          <label>Zona <span class="subtitle">(clic per selezionare/deselezionare)</span></label>
+          <div id="zone" class="chips"></div>
+        </div>
+        <div class="full">
+          <label>Anomalia <span class="subtitle">(scelta singola)</span></label>
+          <div id="anomalia" class="chips"></div>
+        </div>
+        <div class="full">
+          <label for="descr">Descrizione anomalia</label>
+          <textarea id="descr" placeholder="Descrivi l'anomalia riscontrata..."></textarea>
+        </div>
+        <div class="full">
+          <label for="ops">Operazioni effettuate</label>
+          <textarea id="ops" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
+        </div>
+        <div class="full">
+          <label>Allegati foto (max 3)</label>
+          <div class="gallery">
+            <div class="slot" data-slot="1">
+              <img id="img1" alt="Foto 1" />
+              <div class="row">
+                <button class="btn" data-up="1" type="button">Carica 1</button>
+                <button class="btn" data-del="1" type="button">Elimina</button>
+                <input type="file" id="file1" accept="image/*">
+              </div>
+            </div>
+            <div class="slot" data-slot="2">
+              <img id="img2" alt="Foto 2" />
+              <div class="row">
+                <button class="btn" data-up="2" type="button">Carica 2</button>
+                <button class="btn" data-del="2" type="button">Elimina</button>
+                <input type="file" id="file2" accept="image/*">
+              </div>
+            </div>
+            <div class="slot" data-slot="3">
+              <img id="img3" alt="Foto 3" />
+              <div class="row">
+                <button class="btn" data-up="3" type="button">Carica 3</button>
+                <button class="btn" data-del="3" type="button">Elimina</button>
+                <input type="file" id="file3" accept="image/*">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="full">
+          <label for="out">Report generato (include VERSIONE)</label>
+          <textarea id="out" readonly></textarea>
+        </div>
+        <div class="full actions">
+          <button id="copy" class="btn primary" type="button">Copia</button>
+          <button id="print" class="btn" type="button">Stampa/Salva PDF</button>
+          <button id="reset" class="btn" type="button">Nuovo report</button>
+          <span class="muted" id="msg"></span>
+        </div>
       </div>
-
-      <div class="field"><label for="data">Data anomalia</label><input type="date" id="data" /></div>
-      <div class="field"><label for="ora">Orario anomalia</label><input type="time" id="ora" /></div>
-      <div class="field"><label for="operatore">Operatore</label><input type="text" id="operatore" placeholder="Nome e cognome o sigla" /></div>
-
-      <fieldset class="field full">
-        <legend>Zona</legend><div class="nota-legenda">(clic per selezionare/deselezionare)</div>
-        <div id="zoneChips" class="chips" role="group" aria-label="Selezione multipla zona">
-          <button type="button" class="chip" data-value="GRUPPO 1" aria-pressed="false">GRUPPO 1</button>
-          <button type="button" class="chip" data-value="GRUPPO 2" aria-pressed="false">GRUPPO 2</button>
-          <button type="button" class="chip" data-value="SGRIGLIATORE" aria-pressed="false">SGRIGLIATORE</button>
-          <button type="button" class="chip" data-value="ALTRO" aria-pressed="false">ALTRO</button>
-        </div>
-      </fieldset>
-
-      <fieldset class="field full">
-        <legend>Anomalia</legend><div class="nota-legenda">(clic per selezionare)</div>
-        <div id="anomaliaChips" class="chips" role="radiogroup" aria-label="Tipo di anomalia">
-          <button type="button" class="chip" role="radio" data-value="ALLARME" aria-checked="false">ALLARME</button>
-          <button type="button" class="chip" role="radio" data-value="BLOCCO" aria-checked="false">BLOCCO</button>
-          <button type="button" class="chip" role="radio" data-value="ALTRO" aria-checked="false">ALTRO</button>
-        </div>
-      </fieldset>
-
-      <div class="field full"><label for="descrizione">Descrizione anomalia</label><textarea id="descrizione" placeholder="Descrivi l'anomalia riscontrata..."></textarea></div>
-      <div class="field full"><label for="operazioni">Operazioni effettuate</label><textarea id="operazioni" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea></div>
-
-      <fieldset class="field full">
-        <legend>Allegati foto</legend>
-        <div class="nota-legenda">Fino a 3 immagini. L'anteprima compare sopra al pulsante. Ogni foto si può eliminare.</div>
-        <div class="gallery">
-          <div class="foto-card" data-slot="1">
-            <img class="foto-preview" id="preview1" alt="Anteprima foto 1" />
-            <div class="foto-actions">
-              <button type="button" class="btn btn--primario" id="btnUpload1">Carica foto 1</button>
-              <button type="button" class="btn btn--pericolo" id="btnDelete1" disabled>Elimina</button>
-            </div>
-            <input type="file" accept="image/*" id="file1" class="hidden" />
-          </div>
-          <div class="foto-card" data-slot="2">
-            <img class="foto-preview" id="preview2" alt="Anteprima foto 2" />
-            <div class="foto-actions">
-              <button type="button" class="btn btn--primario" id="btnUpload2">Carica foto 2</button>
-              <button type="button" class="btn btn--pericolo" id="btnDelete2" disabled>Elimina</button>
-            </div>
-            <input type="file" accept="image/*" id="file2" class="hidden" />
-          </div>
-          <div class="foto-card" data-slot="3">
-            <img class="foto-preview" id="preview3" alt="Anteprima foto 3" />
-            <div class="foto-actions">
-              <button type="button" class="btn btn--primario" id="btnUpload3">Carica foto 3</button>
-              <button type="button" class="btn btn--pericolo" id="btnDelete3" disabled>Elimina</button>
-            </div>
-            <input type="file" accept="image/*" id="file3" class="hidden" />
-          </div>
-        </div>
-      </fieldset>
-
-      <div class="field full"><label for="reportFinale">Report generato</label><textarea id="reportFinale" class="report-area" readonly aria-readonly="true" placeholder="Il report comparirà qui man mano che compili."></textarea></div>
-
-      <div class="full azioni">
-        <button type="button" id="btnCopy" class="btn btn--primario">COPIA</button>
-        <button type="button" id="btnPrintPdf" class="btn">Stampa PDF</button>
-        <button type="button" id="btnDownloadPdf" class="btn">Download PDF</button>
-        <button type="button" id="btnReset" class="btn btn--pericolo" title="Svuota e riparti">Nuovo report</button>
-        <span class="muted" id="copiedMsg" aria-live="polite"></span>
-      </div>
-    </form>
+    </div>
   </div>
 
-  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div class="print-root" id="printRoot">
+    <div class="print-header">
+      <img class="big-logo" src="logo_egp.png" alt="Logo grande">
+      <div style="font-size:18pt;font-weight:900">UT Feltre • OU Quero</div>
+      <div style="font-size:14pt;font-weight:700">Scheda Guasto</div>
+      <div id="verTag" style="margin-top:6px;font-size:11pt;color:#333"></div>
+    </div>
+    <div class="kv"><b>Impianto:</b> <span id="p_impianto"></span></div>
+    <div class="kv"><b>Data:</b> <span id="p_data"></span></div>
+    <div class="kv"><b>Ora:</b> <span id="p_ora"></span></div>
+    <div class="kv"><b>Operatore:</b> <span id="p_operatore"></span></div>
+    <div class="kv"><b>Zona:</b> <span id="p_zona"></span></div>
+    <div class="kv"><b>Anomalia:</b> <span id="p_anomalia"></span></div>
+    <div class="section-title">Descrizione anomalia</div>
+    <div id="p_descr" style="white-space:pre-wrap"></div>
+    <div class="section-title">Operazioni effettuate</div>
+    <div id="p_ops" style="white-space:pre-wrap"></div>
+    <div class="section-title">Allegati</div>
+    <div class="print-gallery" id="p_gallery"></div>
+    <div class="waterline">Uso interno Enel Green Power • <span id="p_version_footer"></span></div>
+    <div class="page-break"></div>
+  </div>
 
   <footer>
-    <div class="footer-inner">
-      <span class="badge" id="versionBadge">Generatore di report • v5.3.8</span>
-      <span class="dot">•</span>
-      <span class="muted">Uso interno Enel Green Power</span>
+    <div class="foot">
+      <span class="badge">Generatore di report • v5.3.10</span>
+      <span>Solo desktop • layout pulito</span>
     </div>
   </footer>
 
   <script>
-    const CONFIG = { VERSION:'v5.3.8', PLANTS:[ 'ALTANON','ANZU','ARCADE','BUSCHE DMV','BUSCHE SBARRAMENTO','CAERANO','CASTELVIERO','CROCE DEL GALLO','FONDERIA','PEDEROBBA','POMPE SONNA','PONTE PIETRA','PONTE SAN MARTINO','PRIULA','QUERO','SPEEDY','SPRESIANO','TAVARAN' ] };
-    const MSG = { nothingToCopy:'Niente da copiare.', copied:'Copiato!', nothingToPrint:'Niente da stampare.', pdfError:'Errore durante la creazione del PDF.', popupBlocked:'Popup bloccato.' };
+    const VERSION = "v5.3.10";
+    const PLANTS = ["ALTANON","ANZU","ARCADE","BUSCHE DMV","BUSCHE SBARRAMENTO","CAERANO","CASTELVIERO","CROCE DEL GALLO","FONDERIA","PEDEROBBA","POMPE SONNA","PONTE PIETRA","PONTE SAN MARTINO","PRIULA","QUERO","SPEEDY","SPRESIANO","TAVARAN"];
+    const ZONE = ["GRUPPO 1","GRUPPO 2","SGRIGLIATORE","ALTRO"];
+    const ANOMALIE = ["ALLARME","BLOCCO","ALTRO"];
 
-    const state = { images:{1:null,2:null,3:null} };
-    const $=(s)=>document.querySelector(s); const $$=(s)=>Array.from(document.querySelectorAll(s));
-    const debounce=(fn,d=200)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d);};};
+    const $ = s => document.querySelector(s);
+    const el = {
+      plant: $("#impianto"), date: $("#data"), time: $("#ora"), oper: $("#operatore"),
+      zoneWrap: $("#zone"), anomWrap: $("#anomalia"),
+      descr: $("#descr"), ops: $("#ops"),
+      out: $("#out"), msg: $("#msg"),
+      copy: $("#copy"), print: $("#print"), reset: $("#reset"),
+      f1: $("#file1"), f2: $("#file2"), f3: $("#file3"),
+      i1: $("#img1"), i2: $("#img2"), i3: $("#img3"),
+      pRoot: $("#printRoot"),
+      pImp: $("#p_impianto"), pData: $("#p_data"), pOra: $("#p_ora"), pOper: $("#p_operatore"),
+      pZona: $("#p_zona"), pAnom: $("#p_anomalia"),
+      pDescr: $("#p_descr"), pOps: $("#p_ops"), pGal: $("#p_gallery"),
+      verTag: $("#verTag"), pVerFoot: $("#p_version_footer")
+    };
 
-    let toastTimer=null; function showToast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500); }
+    const state = { zone: new Set(), anomaly: "", imgs: {1:null,2:null,3:null} };
 
-    function nowDate(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-    function nowTime(){ const d=new Date(); const hh=String(d.getHours()).padStart(2,'0'); const mm=String(d.getMinutes()).padStart(2,'0'); return `${hh}:${mm}`; }
-
-    function selectedZones(){ return $$('#zoneChips .chip[aria-pressed="true"]').map(b=>b.dataset.value); }
-    function selectedAnomaly(){ const on=$('#anomaliaChips .chip[aria-checked="true"]'); return on?on.dataset.value:''; }
-
-    function buildReport(){
-      const plant=$('#impianto').value||'—'; const date=$('#data').value||'—'; const time=$('#ora').value||'—';
-      const operator=($('#operatore').value||'').trim(); const zones=selectedZones(); const anomaly=selectedAnomaly()||'—';
-      const desc=($('#descrizione').value||'').trim(); const ops=($('#operazioni').value||'').trim();
-      const lines=[`IMPIANTO: ${plant}`,`DATA: ${date}`,`ORA: ${time}`,(operator?`OPERATORE: ${operator}`:'OPERATORE: —'),`ZONA: ${zones.length?zones.join(', '):'—'}`,`ANOMALIA: ${anomaly}`,'','DESCRIZIONE ANOMALIA:',(desc||'—'),'','OPERAZIONI EFFETTUATE:',(ops||'—')];
-      $('#reportFinale').value = lines.join('\n'); updateActionState();
-    }
-    function updateActionState(){ const hasText=!!(($('#reportFinale').value||'').trim()); $('#btnCopy').disabled=!hasText; $('#btnPrintPdf').disabled=!hasText; $('#btnDownloadPdf').disabled=!hasText; }
-
-    function resetImageSlot(i){ const img=$('#preview'+i); img.removeAttribute('src'); img.style.visibility='hidden'; $('#btnDelete'+i).disabled=true; const f=$('#file'+i); if(f) f.value=''; state.images[i]=null; }
-    function setImagePreview(i, dataUrl){ const img=$('#preview'+i); img.src=dataUrl; img.style.visibility='visible'; $('#btnDelete'+i).disabled=false; state.images[i]=dataUrl; }
-    function bindImageSlot(i){
-      const f=$('#file'+i), btnU=$('#btnUpload'+i), btnD=$('#btnDelete'+i), prev=$('#preview'+i);
-      prev.style.visibility='hidden';
-      btnU.addEventListener('click', ()=> f && f.click());
-      f.addEventListener('change', ()=>{ const file=(f.files||[])[0]; if(!file) return; if(!file.type.startsWith('image/')) return; const reader=new FileReader(); reader.onload=e=>setImagePreview(i,e.target.result); reader.readAsDataURL(file); });
-      btnD.addEventListener('click', ()=> resetImageSlot(i));
-    }
-
-    // PDF rendering (no logo, left-align with indent)
-    const A4W=1654, A4H=2339, MARGIN=100, INDENT=28;
-    function wrapText(ctx, text, maxW){ const words=(text||'').split(/\s+/); const lines=[]; let line=''; for(const w of words){ const test=line?line+' '+w:w; if(ctx.measureText(test).width<=maxW) line=test; else{ if(line) lines.push(line); line=w; } } if(line) lines.push(line); return lines; }
-
-    async function drawHeader(ctx){
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,A4W,A4H);
-      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#000';
-      ctx.font='bold 48px Segoe UI, Arial'; ctx.fillText('UT Feltre - OU Quero', A4W/2, MARGIN);
-      ctx.font='600 32px Segoe UI, Arial'; ctx.fillText('Scheda Guasto', A4W/2, MARGIN+54);
-      ctx.textAlign='left';
-      return MARGIN+96;
-    }
-
-    function drawLabelValue(ctx, label, value, x, y, maxW){
-      ctx.textAlign='left'; ctx.textBaseline='top';
-      ctx.font='bold 30px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText(label, x, y);
-      ctx.font='26px Segoe UI, Arial'; ctx.fillStyle='#000';
-      const lines=wrapText(ctx, value||'—', maxW);
-      let yy=y+36;
-      for(const ln of lines){ ctx.fillText(ln, x, yy); yy+=32; }
-      return yy+12;
-    }
-
-    async function renderFirstPage(text, firstImageUrl){
-      const c=document.createElement('canvas'); c.width=A4W; c.height=A4H; const ctx=c.getContext('2d');
-      let y = await drawHeader(ctx);
-      const topAreaBottom = Math.round(A4H/2);
-      const left=MARGIN + INDENT, right=A4W - MARGIN - INDENT, maxW=right-left;
-
-      // Parse fields
-      const lines=text.split('\n');
-      const map={}; let section='';
-      for(const ln of lines){
-        if(/^IMPIANTO:/.test(ln)) map.plant=ln.replace('IMPIANTO: ','').trim();
-        else if(/^DATA:/.test(ln)) map.date=ln.replace('DATA: ','').trim();
-        else if(/^ORA:/.test(ln)) map.time=ln.replace('ORA: ','').trim();
-        else if(/^OPERATORE:/.test(ln)) map.operator=ln.replace('OPERATORE: ','').trim();
-        else if(/^ZONA:/.test(ln)) map.zone=ln.replace('ZONA: ','').trim();
-        else if(/^ANOMALIA:/.test(ln)) map.anomaly=ln.replace('ANOMALIA: ','').trim();
-        else if(/^DESCRIZIONE ANOMALIA:/.test(ln)) section='desc';
-        else if(/^OPERAZIONI EFFETTUATE:/.test(ln)) section='ops';
-        else { if(section==='desc'){ map.desc=(map.desc||'')+(map.desc?'\n':'')+ln; } else if(section==='ops'){ map.ops=(map.ops||'')+(map.ops?'\n':'')+ln; } }
+    function initChoices() {
+      // impianti
+      const frag = document.createDocumentFragment();
+      for (const p of PLANTS) {
+        const o = document.createElement("option");
+        o.value = p; o.textContent = p;
+        frag.appendChild(o);
       }
+      el.plant.appendChild(frag);
 
-      // Text block
-      y = drawLabelValue(ctx, 'Impianto', map.plant||'—', left, y, maxW);
-      const rowTop = y;
-      const yData = drawLabelValue(ctx, 'Data', map.date||'—', left, y, Math.floor(maxW/2)-20);
-      const yOra = drawLabelValue(ctx, 'Ora', map.time||'—', left + Math.floor(maxW/2)+40, rowTop, Math.floor(maxW/2)-20);
-      y = Math.max(yData, yOra);
-      y = drawLabelValue(ctx, 'Operatore', map.operator||'—', left, y, maxW);
-      y = drawLabelValue(ctx, 'Zona', map.zone||'—', left, y, maxW);
-      y = drawLabelValue(ctx, 'Anomalia', map.anomaly||'—', left, y, maxW);
-
-      ctx.textAlign='left'; ctx.textBaseline='top'; ctx.font='bold 30px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText('Descrizione anomalia', left, y+8);
-      y+=40; ctx.font='26px Segoe UI, Arial'; ctx.fillStyle='#000';
-      for(const ln of wrapText(ctx, map.desc||'—', maxW)){ if(y>topAreaBottom-24) break; ctx.fillText(ln,left,y); y+=34; }
-
-      ctx.textAlign='left'; ctx.textBaseline='top'; ctx.font='bold 30px Segoe UI, Arial'; ctx.fillStyle='#222'; ctx.fillText('Operazioni effettuate', left, y+24);
-      y+=56; ctx.font='26px Segoe UI, Arial'; ctx.fillStyle='#000';
-      for(const ln of wrapText(ctx, map.ops||'—', maxW)){ if(y>topAreaBottom-24) break; ctx.fillText(ln,left,y); y+=34; }
-
-      // Bottom half: first image
-      if(firstImageUrl){
-        await new Promise((resolve,reject)=>{
-          const img=new Image(); img.onload=()=>{
-            const areaTop=topAreaBottom+20; const areaBottom=A4H-MARGIN; const areaH=areaBottom-areaTop; const areaW=A4W-MARGIN*2;
-            const scale=Math.min(areaW/img.width, areaH/img.height); const w=Math.round(img.width*scale), h=Math.round(img.height*scale);
-            const x=Math.round((A4W - w)/2), yy=Math.round(areaTop + (areaH - h)/2);
-            ctx.drawImage(img, x, yy, w, h); resolve();
-          }; img.onerror=reject; img.src=firstImageUrl;
+      // zone multi
+      for (const z of ZONE) {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = z; b.dataset.value = z; b.dataset.on = "0";
+        b.addEventListener("click", () => {
+          const on = b.dataset.on === "1";
+          b.dataset.on = on ? "0" : "1";
+          if (on) state.zone.delete(z); else state.zone.add(z);
+          buildReport();
         });
-      } else {
-        ctx.strokeStyle='#ddd'; ctx.lineWidth=2; ctx.strokeRect(MARGIN, topAreaBottom+20, A4W-MARGIN*2, A4H - (topAreaBottom+20) - MARGIN);
+        el.zoneWrap.appendChild(b);
       }
-      return c;
-    }
-
-    async function renderSecondPage(remainingUrls){
-      if(!remainingUrls.length) return null;
-      const c=document.createElement('canvas'); c.width=A4W; c.height=A4H; const ctx=c.getContext('2d');
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,A4W,A4H);
-      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#000'; ctx.font='600 30px Segoe UI, Arial'; ctx.fillText('Allegati fotografici', A4W/2, MARGIN);
-
-      const areaTop=MARGIN+30, areaBottom=A4H-MARGIN; const totalH=areaBottom-areaTop; const slotH=(totalH-40)/2;
-      let yCursor=areaTop;
-      for(let i=0;i<Math.min(2, remainingUrls.length); i++){
-        const url=remainingUrls[i];
-        await new Promise((resolve,reject)=>{
-          const img=new Image(); img.onload=()=>{
-            const areaW=A4W-MARGIN*2; const scale=Math.min(areaW/img.width, slotH/img.height);
-            const w=Math.round(img.width*scale), h=Math.round(img.height*scale); const x=Math.round((A4W - w)/2); const y=Math.round(yCursor + (slotH - h)/2);
-            ctx.drawImage(img,x,y,w,h); resolve();
-          }; img.onerror=reject; img.src=url;
+      // anomalia single
+      for (const a of ANOMALIE) {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = a; b.dataset.value = a; b.dataset.on = "0";
+        b.addEventListener("click", () => {
+          state.anomaly = a;
+          [...el.anomWrap.children].forEach(x => x.dataset.on = (x.dataset.value === a ? "1" : "0"));
+          buildReport();
         });
-        yCursor += slotH + 40;
+        el.anomWrap.appendChild(b);
       }
-      return c;
     }
 
-    function makePdfFromJpegs(pages){
-      const enc=new TextEncoder(); const chunks=[]; let offset=0; const NL='\n';
-      const pushText=(s)=>{const b=enc.encode(s);chunks.push(b);offset+=b.length}; const pushBytes=(b)=>{chunks.push(b);offset+=b.length};
-      pushText('%PDF-1.3'+NL);
-      const rootId=1, pagesId=2; let nextId=3; const kids=[]; const objOffsets=[0];
-      const writeObj=(id,c)=>{objOffsets[id]=offset; pushText(id+' 0 obj'+NL+c+NL+'endobj'+NL);};
-      for(const p of pages){
-        const pageId=nextId++, imgId=nextId++, contId=nextId++; kids.push(pageId+' 0 R');
-        writeObj(imgId, `<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>`+NL+'stream'+NL);
-        pushBytes(p.bytes); pushText(NL+'endstream'+NL);
-        const content=`q ${p.w} 0 0 ${p.h} 0 0 cm /Im0 Do Q`; const len=enc.encode(content).length+2;
-        writeObj(contId, `<< /Length ${len} >>`+NL+'stream'+NL+content+NL+'endstream');
-        writeObj(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${p.w} ${p.h}] /Resources << /XObject << /Im0 ${imgId} 0 R >> >> /Contents ${contId} 0 R >>`);
+    function todayStr() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return y + "-" + m + "-" + dd;
+    }
+    function nowHM() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      return hh + ":" + mm;
+    }
+
+    function buildReport() {
+      const plant = el.plant.value || "—";
+      const date = el.date.value || "—";
+      const time = el.time.value || "—";
+      const oper = el.oper.value.trim() || "—";
+      const zones = [...state.zone].join(", ") || "—";
+      const anom = state.anomaly || "—";
+      const desc = el.descr.value.trim() || "—";
+      const ops = el.ops.value.trim() || "—";
+
+      const text = 
+        "IMPIANTO: " + plant + "\n" +
+        "DATA: " + date + "\n" +
+        "ORA: " + time + "\n" +
+        "OPERATORE: " + oper + "\n" +
+        "ZONA: " + zones + "\n" +
+        "ANOMALIA: " + anom + "\n\n" +
+        "DESCRIZIONE ANOMALIA:\n" + desc + "\n\n" +
+        "OPERAZIONI EFFETTUATE:\n" + ops + "\n\n" +
+        "VERSIONE: " + VERSION;
+
+      // Usa vere newline nella textarea
+      el.out.value = text.replace(/\\n/g, "\n");
+
+      // Prepara stampa
+      el.verTag.textContent = "Versione " + VERSION;
+      el.pVerFoot.textContent = VERSION;
+      el.pImp.textContent = plant;
+      el.pData.textContent = date;
+      el.pOra.textContent = time;
+      el.pOper.textContent = oper;
+      el.pZona.textContent = zones;
+      el.pAnom.textContent = anom;
+      el.pDescr.textContent = desc;
+      el.pOps.textContent = ops;
+
+      // galleria
+      el.pGal.innerHTML = "";
+      for (const k of [1,2,3]) {
+        const src = state.imgs[k];
+        if (src) { const im = document.createElement("img"); im.src = src; el.pGal.appendChild(im); }
       }
-      writeObj(pagesId, `<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`);
-      writeObj(rootId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
-      const startxref=offset; const count=nextId-1;
-      pushText('xref'+NL+'0 '+(count+1)+NL+'0000000000 65535 f '+NL);
-      for(let i=1;i<=count;i++){ const off=String(objOffsets[i]||0).padStart(10,'0'); pushText(off+' 00000 n '+NL); }
-      pushText('trailer'+NL+`<< /Size ${count+1} /Root ${rootId} 0 R >>`+NL+'startxref'+NL+startxref+NL+'%%EOF');
-      let total=0; for(const c of chunks) total+=c.length; const out=new Uint8Array(total); let pos=0; for(const c of chunks){ out.set(c,pos); pos+=c.length; } return out;
     }
 
-    async function canvasesToJpegsSafe(canvases){
-      const result=[];
-      for(const c of canvases){
-        const dataUrl=c.toDataURL('image/jpeg',0.92);
-        const b64=dataUrl.split(',')[1]; const bin=atob(b64); const len=bin.length; const u8=new Uint8Array(len); for(let i=0;i<len;i++) u8[i]=bin.charCodeAt(i);
-        result.push({bytes:u8, w:c.width, h:c.height});
-      }
-      return result;
+    function bindImages(idx) {
+      const file = el["f"+idx];
+      const img = el["i"+idx];
+      const upBtn = document.querySelector('[data-up="'+idx+'"]');
+      const delBtn = document.querySelector('[data-del="'+idx+'"]');
+      upBtn.addEventListener("click", () => file.click());
+      file.addEventListener("change", () => {
+        const f = file.files && file.files[0];
+        if (!f || !f.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; state.imgs[idx] = e.target.result; buildReport(); };
+        reader.readAsDataURL(f);
+      });
+      delBtn.addEventListener("click", () => { img.removeAttribute("src"); state.imgs[idx] = null; file.value=""; buildReport(); });
     }
 
-    async function createMultipagePdf(){
-      const text=($('#reportFinale').value||'').trim(); if(!text){ showToast(MSG.nothingToPrint); return null; }
-      const urls=[state.images[1],state.images[2],state.images[3]].filter(Boolean);
-      const canvases=[];
-      canvases.push(await renderFirstPage(text, urls[0]||null));
-      const second = await renderSecondPage(urls.slice(1));
-      if(second) canvases.push(second);
-      const pages=await canvasesToJpegsSafe(canvases);
-      const pdfBytes=makePdfFromJpegs(pages); return new Blob([pdfBytes],{type:'application/pdf'});
+    function copyToClipboard() {
+      const t = el.out.value;
+      if (!t.trim()) { el.msg.textContent = "Niente da copiare."; return; }
+      if (!navigator.clipboard) { el.msg.textContent = "Clipboard non disponibile."; return; }
+      navigator.clipboard.writeText(t).then(() => {
+        el.msg.textContent = "Copiato.";
+        setTimeout(() => el.msg.textContent = "", 1200);
+      }).catch(() => { el.msg.textContent = "Errore copia."; });
     }
 
-    function resetAll(){
-      $('#impianto').value=''; $('#data').value=nowDate(); $('#ora').value=nowTime(); $('#operatore').value=''; $('#descrizione').value=''; $('#operazioni').value=''; $('#reportFinale').value='';
-      $$('#zoneChips .chip').forEach(b=>b.setAttribute('aria-pressed','false')); $$('#anomaliaChips .chip').forEach(b=>b.setAttribute('aria-checked','false'));
-      [1,2,3].forEach(i=>resetImageSlot(i)); updateActionState(); buildReport();
+    function printPdf() { window.print(); }
+
+    function resetAll() {
+      el.plant.value = "";
+      el.date.value = todayStr();
+      el.time.value = nowHM();
+      el.oper.value = "";
+      el.descr.value = "";
+      el.ops.value = "";
+      state.zone = new Set();
+      state.anomaly = "";
+      for (const k of [1,2,3]) { state.imgs[k]=null; el["i"+k].removeAttribute("src"); el["f"+k].value=""; }
+      [...el.zoneWrap.children].forEach(b => b.dataset.on = "0");
+      [...el.anomWrap.children].forEach(b => b.dataset.on = "0");
+      buildReport();
     }
-    function init(){
-      document.title='Generatore report '+CONFIG.VERSION; $('#versionBadge').textContent='Generatore di report • '+CONFIG.VERSION;
-      const sel=$('#impianto'); CONFIG.PLANTS.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
-      $('#zoneChips').addEventListener('click', e=>{ const b=e.target.closest('.chip'); if(!b) return; const v=b.getAttribute('aria-pressed')==='true'; b.setAttribute('aria-pressed', String(!v)); buildReport(); });
-      $('#anomaliaChips').addEventListener('click', e=>{ const b=e.target.closest('.chip[role="radio"]'); if(!b) return; $$('#anomaliaChips .chip').forEach(x=>x.setAttribute('aria-checked','false')); b.setAttribute('aria-checked','true'); buildReport(); });
-      const onInput=debounce(buildReport,200);
-      $('#impianto').addEventListener('change',buildReport); $('#data').addEventListener('change',buildReport); $('#ora').addEventListener('change',buildReport);
-      $('#operatore').addEventListener('input',onInput); $('#descrizione').addEventListener('input',onInput); $('#operazioni').addEventListener('input',onInput);
-      $('#reportFinale').addEventListener('keydown', e=>e.preventDefault()); $('#reportFinale').addEventListener('paste', e=>e.preventDefault());
-      [1,2,3].forEach(i=>bindImageSlot(i));
-      $('#btnReset').addEventListener('click', ()=>{ resetAll(); });
-      $('#btnCopy').addEventListener('click', async ()=>{ const text=$('#reportFinale').value||''; if(!text.trim()) return showToast(MSG.nothingToCopy); if(!navigator.clipboard || !navigator.clipboard.writeText) return showToast('Clipboard API non disponibile.'); try{ await navigator.clipboard.writeText(text); $('#copiedMsg').textContent=MSG.copied; setTimeout(()=>$('#copiedMsg').textContent='',1500); }catch(e){ showToast('Errore copia.'); } });
-      $('#btnPrintPdf').addEventListener('click', async ()=>{ try{ const blob=await createMultipagePdf(); if(!blob) return; const url=URL.createObjectURL(blob); const w=window.open(url,'_blank'); if(!w) showToast(MSG.popupBlocked); setTimeout(()=>URL.revokeObjectURL(url),20000); }catch(e){ console.error(e); showToast(MSG.pdfError); } });
-      $('#btnDownloadPdf').addEventListener('click', async ()=>{ try{ const blob=await createMultipagePdf(); if(!blob) return; const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='report_guasto.pdf'; document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a); URL.revokeObjectURL(url);},1000); }catch(e){ console.error(e); showToast(MSG.pdfError); } });
-      resetAll();
+
+    function init() {
+      initChoices();
+      bindImages(1); bindImages(2); bindImages(3);
+
+      // auto-compilazione data/ora all'avvio
+      el.date.value = todayStr();
+      el.time.value = nowHM();
+
+      el.plant.addEventListener("change", buildReport);
+      el.date.addEventListener("change", buildReport);
+      el.time.addEventListener("change", buildReport);
+      el.oper.addEventListener("input", buildReport);
+      el.descr.addEventListener("input", buildReport);
+      el.ops.addEventListener("input", buildReport);
+
+      el.copy.addEventListener("click", copyToClipboard);
+      el.print.addEventListener("click", printPdf);
+      el.reset.addEventListener("click", resetAll);
+
+      buildReport();
     }
-    window.addEventListener('DOMContentLoaded', init);
+    document.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
 </html>

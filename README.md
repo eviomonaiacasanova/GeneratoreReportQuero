@@ -44,6 +44,42 @@ Per limitarne l’uso ai soli colleghi può essere protetto tramite autenticazio
 
 ## 📜 Changelog
 
+### 5.3.10 – 2025-10-06
+- **Aggiunto:** reintroduzione del logo grande centrato nei PDF, ora gestito automaticamente anche su report multipagina.  
+- **Aggiunto:** visualizzazione della **versione corrente** sia nel testo generato che nel PDF, per facilitare il tracciamento dei feedback.  
+- **Cambiato:** migliorato allineamento del campo anomalia e ottimizzata la distribuzione dei pulsanti nella sezione finale.  
+- **Risolto:** errore di formattazione nei PDF generati su browser mobile e su stampa diretta.  
+
+### 5.3.8 – 2025-10-06
+- **Aggiunto:** pulsante per allegare fino a 3 foto al report, incluse automaticamente nei PDF multipagina.
+- **Cambiato:** il campo anomalia è stato esteso per mantenere la scritta “(tocca per selezionare/deselezionare)” su una sola riga.
+- **Risolto:** compatibilità della condivisione PDF su Android e desktop.
+
+### 5.3.6 – 2025-10-04
+- **Aggiunto:** campo versione nel testo generato e nel PDF per facilitare i feedback.
+- **Cambiato:** migliorata la formattazione del testo del report per la stampa.
+- **Risolto:** duplicazione di intestazioni nei PDF generati in sequenza.
+
+### 5.3.3 – 2025-10-01
+- **Aggiunto:** auto-wipe giornaliero dei dati salvati in locale dopo 24 ore.
+- **Cambiato:** migliorato comportamento del pulsante “Nuovo report” all’apertura.
+- **Risolto:** testo non aggiornato dopo il reset automatico.
+
+### 5.3.2 – 2025-09-30
+- **Aggiunto:** messaggio di conferma prima del reset del report.
+- **Cambiato:** tema grafico aggiornato per maggiore leggibilità in ambienti scuri.
+- **Risolto:** errori casuali nel rendering del testo durante l’anteprima.
+
+### 5.3.1 – 2025-09-29
+- **Aggiunto:** controllo automatico della versione al caricamento.
+- **Cambiato:** struttura del PDF con separatore visivo tra sezioni.
+- **Risolto:** bug minore nella gestione del logo.
+
+### 5.2.0 – 2025-09-20
+- **Aggiunto:** nuova struttura del changelog per versioni future.
+- **Cambiato:** uniformato stile e naming dei pulsanti principali.
+- **Risolto:** piccoli bug di persistenza dati tra sessioni.
+
 ### 5.1.1 – 2025-10-10
 - **Aggiunto:** migliorata gestione della condivisione PDF con compatibilità desktop/mobile.
 - **Cambiato:** campo anomalia reso più ampio e ottimizzato il layout per non spostare i pulsanti.
