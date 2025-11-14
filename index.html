@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generatore report v5.3.10</title>
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    :root { --bg:#0b0c10; --panel:#14161c; --ink:#e9eef7; --muted:#aab2bf; --accent:#4e8df5; --line:#2a2e36; }
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:920px;margin:28px auto 100px;padding:0 16px}
+    h1{margin:0 0 18px;display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center}
+    .logo{height:90px;width:120px;object-fit:contain}
+    .subtitle{color:var(--muted);font-size:.95rem}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .full{grid-column:1 / -1}
+    label{display:block;font-weight:700;margin-bottom:6px}
+    select,input[type=date],input[type=time],input[type=text],textarea{background:#1a1d25;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink)}
+    textarea{min-height:110px;resize:vertical;white-space:pre-wrap}
+    .chips{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{border:1px solid var(--line);background:#1a1d25;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700}
+    .chip[data-on="1"]{background:#223b6f;border-color:#3e6ddc}
+    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .btn{background:#1a1d25;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .muted{color:var(--muted);font-size:.9rem}
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .slot{border:1px dashed var(--line);border-radius:10px;padding:10px;display:grid;gap:8px}
+    .slot img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#0e1116;border-radius:6px}
+    .slot .row{display:flex;gap:8px}
+    .slot input[type=file]{display:none}
+    footer{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(20,22,28,0),rgba(20,22,28,1) 40%)}
+    .foot{max-width:920px;margin:0 auto;padding:10px 16px 14px;display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted)}
+    .badge{border:1px solid var(--line);background:#1a1d25;border-radius:999px;padding:4px 10px;color:#dfe6f2;font-weight:800}
+    .print-root{display:none}
+    .print-header{text-align:center;margin-bottom:18px}
+    .print-header .big-logo{max-width:70%;height:auto;margin:12px auto 6px;display:block}
+    .kv{margin-bottom:8px}.kv b{display:inline-block;min-width:140px}
+    .section-title{margin:16px 0 6px;font-weight:800}
+    .print-gallery{margin-top:12px;display:grid;grid-template-columns:1fr;gap:12px}
+    .print-gallery img{width:100%;max-height:20cm;object-fit:contain}
+    @media print{
+      body{background:#fff;color:#000}
+      .wrap,footer{display:none !important}
+      .print-root{display:block;padding:1.2cm 1.4cm;font-size:12pt}
+      .page-break{break-after:page}
+      .waterline{margin-top:12px;text-align:center;color:#333;font-size:10pt}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>
+      <img class="logo" src="logo_egp.png" alt="Logo">
+      <div>
+        <div style="font-weight:900;font-size:1.4rem">Generatore schede guasti</div>
+        <div class="subtitle">UT Feltre • OU Quero</div>
+      </div>
+    </h1>
+
+    <div class="panel">
+      <div class="grid">
+        <div class="full">
+          <label for="impianto">Impianto</label>
+          <select id="impianto">
+            <option value="" selected>— seleziona impianto —</option>
+          </select>
+        </div>
+        <div>
+          <label for="data">Data anomalia</label>
+          <input type="date" id="data">
+        </div>
+        <div>
+          <label for="ora">Orario anomalia</label>
+          <input type="time" id="ora">
+        </div>
+        <div>
+          <label for="operatore">Operatore</label>
+          <input type="text" id="operatore" placeholder="Nome e cognome o sigla">
+        </div>
+        <div class="full">
+          <label>Zona <span class="subtitle">(clic per selezionare/deselezionare)</span></label>
+          <div id="zone" class="chips"></div>
+        </div>
+        <div class="full">
+          <label>Anomalia <span class="subtitle">(scelta singola)</span></label>
+          <div id="anomalia" class="chips"></div>
+        </div>
+        <div class="full">
+          <label for="descr">Descrizione anomalia</label>
+          <textarea id="descr" placeholder="Descrivi l'anomalia riscontrata..."></textarea>
+        </div>
+        <div class="full">
+          <label for="ops">Operazioni effettuate</label>
+          <textarea id="ops" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
+        </div>
+        <div class="full">
+          <label>Allegati foto (max 3)</label>
+          <div class="gallery">
+            <div class="slot" data-slot="1">
+              <img id="img1" alt="Foto 1" />
+              <div class="row">
+                <button class="btn" data-up="1" type="button">Carica 1</button>
+                <button class="btn" data-del="1" type="button">Elimina</button>
+                <input type="file" id="file1" accept="image/*">
+              </div>
+            </div>
+            <div class="slot" data-slot="2">
+              <img id="img2" alt="Foto 2" />
+              <div class="row">
+                <button class="btn" data-up="2" type="button">Carica 2</button>
+                <button class="btn" data-del="2" type="button">Elimina</button>
+                <input type="file" id="file2" accept="image/*">
+              </div>
+            </div>
+            <div class="slot" data-slot="3">
+              <img id="img3" alt="Foto 3" />
+              <div class="row">
+                <button class="btn" data-up="3" type="button">Carica 3</button>
+                <button class="btn" data-del="3" type="button">Elimina</button>
+                <input type="file" id="file3" accept="image/*">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="full">
+          <label for="out">Report generato (include VERSIONE)</label>
+          <textarea id="out" readonly></textarea>
+        </div>
+        <div class="full actions">
+          <button id="copy" class="btn primary" type="button">Copia</button>
+          <button id="print" class="btn" type="button">Stampa/Salva PDF</button>
+          <button id="reset" class="btn" type="button">Nuovo report</button>
+          <span class="muted" id="msg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-root" id="printRoot">
+    <div class="print-header">
+      <img class="big-logo" src="logo_egp.png" alt="Logo grande">
+      <div style="font-size:18pt;font-weight:900">UT Feltre • OU Quero</div>
+      <div style="font-size:14pt;font-weight:700">Scheda Guasto</div>
+      <div id="verTag" style="margin-top:6px;font-size:11pt;color:#333"></div>
+    </div>
+    <div class="kv"><b>Impianto:</b> <span id="p_impianto"></span></div>
+    <div class="kv"><b>Data:</b> <span id="p_data"></span></div>
+    <div class="kv"><b>Ora:</b> <span id="p_ora"></span></div>
+    <div class="kv"><b>Operatore:</b> <span id="p_operatore"></span></div>
+    <div class="kv"><b>Zona:</b> <span id="p_zona"></span></div>
+    <div class="kv"><b>Anomalia:</b> <span id="p_anomalia"></span></div>
+    <div class="section-title">Descrizione anomalia</div>
+    <div id="p_descr" style="white-space:pre-wrap"></div>
+    <div class="section-title">Operazioni effettuate</div>
+    <div id="p_ops" style="white-space:pre-wrap"></div>
+    <div class="section-title">Allegati</div>
+    <div class="print-gallery" id="p_gallery"></div>
+    <div class="waterline">Uso interno Enel Green Power • <span id="p_version_footer"></span></div>
+    <div class="page-break"></div>
+  </div>
+
+  <footer>
+    <div class="foot">
+      <span class="badge">Generatore di report • v5.3.10</span>
+      <span>Solo desktop • layout pulito</span>
+    </div>
+  </footer>
+
+  <script>
+    const VERSION = "v5.3.10";
+    const PLANTS = ["ALTANON","ANZU","ARCADE","BUSCHE DMV","BUSCHE SBARRAMENTO","CAERANO","CASTELVIERO","CROCE DEL GALLO","FONDERIA","PEDEROBBA","POMPE SONNA","PONTE PIETRA","PONTE SAN MARTINO","PRIULA","QUERO","SPEEDY","SPRESIANO","TAVARAN"];
+    const ZONE = ["GRUPPO 1","GRUPPO 2","SGRIGLIATORE","ALTRO"];
+    const ANOMALIE = ["ALLARME","BLOCCO","ALTRO"];
+
+    const $ = s => document.querySelector(s);
+    const el = {
+      plant: $("#impianto"), date: $("#data"), time: $("#ora"), oper: $("#operatore"),
+      zoneWrap: $("#zone"), anomWrap: $("#anomalia"),
+      descr: $("#descr"), ops: $("#ops"),
+      out: $("#out"), msg: $("#msg"),
+      copy: $("#copy"), print: $("#print"), reset: $("#reset"),
+      f1: $("#file1"), f2: $("#file2"), f3: $("#file3"),
+      i1: $("#img1"), i2: $("#img2"), i3: $("#img3"),
+      pRoot: $("#printRoot"),
+      pImp: $("#p_impianto"), pData: $("#p_data"), pOra: $("#p_ora"), pOper: $("#p_operatore"),
+      pZona: $("#p_zona"), pAnom: $("#p_anomalia"),
+      pDescr: $("#p_descr"), pOps: $("#p_ops"), pGal: $("#p_gallery"),
+      verTag: $("#verTag"), pVerFoot: $("#p_version_footer")
+    };
+
+    const state = { zone: new Set(), anomaly: "", imgs: {1:null,2:null,3:null} };
+
+    function initChoices() {
+      const frag = document.createDocumentFragment();
+      for (const p of PLANTS) {
+        const o = document.createElement("option");
+        o.value = p; o.textContent = p;
+        frag.appendChild(o);
+      }
+      el.plant.appendChild(frag);
+
+      for (const z of ZONE) {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = z; b.dataset.value = z; b.dataset.on = "0";
+        b.addEventListener("click", () => {
+          const on = b.dataset.on === "1";
+          b.dataset.on = on ? "0" : "1";
+          if (on) state.zone.delete(z); else state.zone.add(z);
+          buildReport();
+        });
+        el.zoneWrap.appendChild(b);
+      }
+
+      for (const a of ANOMALIE) {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = a; b.dataset.value = a; b.dataset.on = "0";
+        b.addEventListener("click", () => {
+          state.anomaly = a;
+          [...el.anomWrap.children].forEach(x => x.dataset.on = (x.dataset.value === a ? "1" : "0"));
+          buildReport();
+        });
+        el.anomWrap.appendChild(b);
+      }
+    }
+
+    function todayStr() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return y + "-" + m + "-" + dd;
+    }
+    function nowHM() {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      return hh + ":" + mm;
+    }
+
+    function buildReport() {
+      const plant = el.plant.value || "—";
+      const date = el.date.value || "—";
+      const time = el.time.value || "—";
+      const oper = el.oper.value.trim() || "—";
+      const zones = [...state.zone].join(", ") || "—";
+      const anom = state.anomaly || "—";
+      const desc = el.descr.value.trim() || "—";
+      const ops = el.ops.value.trim() || "—";
+
+      const text =
+        "IMPIANTO: " + plant + "\n" +
+        "DATA: " + date + "\n" +
+        "ORA: " + time + "\n" +
+        "OPERATORE: " + oper + "\n" +
+        "ZONA: " + zones + "\n" +
+        "ANOMALIA: " + anom + "\n\n" +
+        "DESCRIZIONE ANOMALIA:\n" + desc + "\n\n" +
+        "OPERAZIONI EFFETTUATE:\n" + ops + "\n\n" +
+        "VERSIONE: " + VERSION;
+
+      el.out.value = text.replace(/\\n/g, "\n");
+
+      el.verTag.textContent = "Versione " + VERSION;
+      el.pVerFoot.textContent = VERSION;
+      el.pImp.textContent = plant;
+      el.pData.textContent = date;
+      el.pOra.textContent = time;
+      el.pOper.textContent = oper;
+      el.pZona.textContent = zones;
+      el.pAnom.textContent = anom;
+      el.pDescr.textContent = desc;
+      el.pOps.textContent = ops;
+
+      el.pGal.innerHTML = "";
+      for (const k of [1,2,3]) {
+        const src = state.imgs[k];
+        if (src) { const im = document.createElement("img"); im.src = src; el.pGal.appendChild(im); }
+      }
+    }
+
+    function bindImages(idx) {
+      const file = el["f"+idx];
+      const img = el["i"+idx];
+      const upBtn = document.querySelector('[data-up="'+idx+'"]');
+      const delBtn = document.querySelector('[data-del="'+idx+'"]');
+      upBtn.addEventListener("click", () => file.click());
+      file.addEventListener("change", () => {
+        const f = file.files && file.files[0];
+        if (!f || !f.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; state.imgs[idx] = e.target.result; buildReport(); };
+        reader.readAsDataURL(f);
+      });
+      delBtn.addEventListener("click", () => { img.removeAttribute("src"); state.imgs[idx] = null; file.value=""; buildReport(); });
+    }
+
+    function copyToClipboard() {
+      const t = el.out.value;
+      if (!t.trim()) { el.msg.textContent = "Niente da copiare."; return; }
+      if (!navigator.clipboard) { el.msg.textContent = "Clipboard non disponibile."; return; }
+      navigator.clipboard.writeText(t).then(() => {
+        el.msg.textContent = "Copiato.";
+        setTimeout(() => el.msg.textContent = "", 1200);
+      }).catch(() => { el.msg.textContent = "Errore copia."; });
+    }
+
+    function printPdf() {
+      const plant = el.plant.value.trim() || "IMPIANTO";
+      const anom = state.anomaly || "TIPO ALLARME";
+      const rawDate = el.date.value || "";
+      let datePart = "00000000";
+      if (rawDate && rawDate.includes("-")) {
+        const parts = rawDate.split("-");
+        if (parts.length === 3) {
+          const y = parts[0], m = parts[1], d = parts[2];
+          datePart = d.padStart(2,"0") + m.padStart(2,"0") + y;
+        }
+      }
+      const safePlant = plant.replace(/[\/:*?"<>|]/g, " ");
+      const safeAnom = anom.replace(/[\/:*?"<>|]/g, " ");
+      const newTitle = `${safePlant} - ${safeAnom} - ${datePart}`;
+      const oldTitle = document.title;
+      document.title = newTitle;
+      window.print();
+      setTimeout(() => { document.title = oldTitle; }, 2000);
+    }
+
+    function resetAll() {
+      el.plant.value = "";
+      el.date.value = todayStr();
+      el.time.value = nowHM();
+      el.oper.value = "";
+      el.descr.value = "";
+      el.ops.value = "";
+      state.zone = new Set();
+      state.anomaly = "";
+      for (const k of [1,2,3]) { state.imgs[k]=null; el["i"+k].removeAttribute("src"); el["f"+k].value=""; }
+      [...el.zoneWrap.children].forEach(b => b.dataset.on = "0");
+      [...el.anomWrap.children].forEach(b => b.dataset.on = "0");
+      buildReport();
+    }
+
+    function init() {
+      initChoices();
+      bindImages(1); bindImages(2); bindImages(3);
+      el.date.value = todayStr();
+      el.time.value = nowHM();
+      el.plant.addEventListener("change", buildReport);
+      el.date.addEventListener("change", buildReport);
+      el.time.addEventListener("change", buildReport);
+      el.oper.addEventListener("input", buildReport);
+      el.descr.addEventListener("input", buildReport);
+      el.ops.addEventListener("input", buildReport);
+      el.copy.addEventListener("click", copyToClipboard);
+      el.print.addEventListener("click", printPdf);
+      el.reset.addEventListener("click", resetAll);
+      buildReport();
+    }
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
