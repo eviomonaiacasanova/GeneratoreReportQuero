@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Generatore report v5.3.10</title>
+  <title>Generatore report v5.4.0</title>
   <meta name="robots" content="noindex,nofollow">
   <style>
     :root { --bg:#0b0c10; --panel:#14161c; --ink:#e9eef7; --muted:#aab2bf; --accent:#4e8df5; --line:#2a2e36; }
-    *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-    .wrap{max-width:920px;margin:28px auto 100px;padding:0 16px}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:920px;margin:28px auto 110px;padding:0 16px}
     h1{margin:0 0 18px;display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center}
     .logo{height:90px;width:120px;object-fit:contain}
     .subtitle{color:var(--muted);font-size:.95rem}
@@ -16,14 +17,17 @@
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .full{grid-column:1 / -1}
     label{display:block;font-weight:700;margin-bottom:6px}
-    select,input[type=date],input[type=time],input[type=text],textarea{background:#1a1d25;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink)}
+    select,input[type=date],input[type=time],input[type=text],textarea{
+      background:#1a1d25;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink);font:inherit
+    }
     textarea{min-height:110px;resize:vertical;white-space:pre-wrap}
     .chips{display:flex;gap:10px;flex-wrap:wrap}
     .chip{border:1px solid var(--line);background:#1a1d25;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700}
     .chip[data-on="1"]{background:#223b6f;border-color:#3e6ddc}
     .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
     .btn{background:#1a1d25;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .btn.primary{background:#4e8df5;border-color:#4e8df5;color:#fff}
+    .btn.danger{background:#922c2c;border-color:#b03a3a;color:#fff}
     .muted{color:var(--muted);font-size:.9rem}
     .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .slot{border:1px dashed var(--line);border-radius:10px;padding:10px;display:grid;gap:8px}
@@ -102,7 +106,7 @@
               <img id="img1" alt="Foto 1" />
               <div class="row">
                 <button class="btn" data-up="1" type="button">Carica 1</button>
-                <button class="btn" data-del="1" type="button">Elimina</button>
+                <button class="btn danger" data-del="1" type="button">Elimina</button>
                 <input type="file" id="file1" accept="image/*">
               </div>
             </div>
@@ -110,7 +114,7 @@
               <img id="img2" alt="Foto 2" />
               <div class="row">
                 <button class="btn" data-up="2" type="button">Carica 2</button>
-                <button class="btn" data-del="2" type="button">Elimina</button>
+                <button class="btn danger" data-del="2" type="button">Elimina</button>
                 <input type="file" id="file2" accept="image/*">
               </div>
             </div>
@@ -118,7 +122,7 @@
               <img id="img3" alt="Foto 3" />
               <div class="row">
                 <button class="btn" data-up="3" type="button">Carica 3</button>
-                <button class="btn" data-del="3" type="button">Elimina</button>
+                <button class="btn danger" data-del="3" type="button">Elimina</button>
                 <input type="file" id="file3" accept="image/*">
               </div>
             </div>
@@ -130,8 +134,10 @@
         </div>
         <div class="full actions">
           <button id="copy" class="btn primary" type="button">Copia</button>
-          <button id="print" class="btn" type="button">Stampa/Salva PDF</button>
-          <button id="reset" class="btn" type="button">Nuovo report</button>
+          <button id="btnPrint" class="btn" type="button">Stampa</button>
+          <button id="btnDownload" class="btn" type="button">Download PDF</button>
+          <button id="btnMail" class="btn" type="button">Mail</button>
+          <button id="reset" class="btn danger" type="button">Nuovo report</button>
           <span class="muted" id="msg"></span>
         </div>
       </div>
@@ -163,13 +169,12 @@
 
   <footer>
     <div class="foot">
-      <span class="badge">Generatore di report • v5.3.10</span>
-      <span>Solo desktop • layout pulito</span>
+      <span class="badge">Generatore di report • v5.4.0</span>
     </div>
   </footer>
 
   <script>
-    const VERSION = "v5.3.10";
+    const VERSION = "v5.4.0";
     const PLANTS = ["ALTANON","ANZU","ARCADE","BUSCHE DMV","BUSCHE SBARRAMENTO","CAERANO","CASTELVIERO","CROCE DEL GALLO","FONDERIA","PEDEROBBA","POMPE SONNA","PONTE PIETRA","PONTE SAN MARTINO","PRIULA","QUERO","SPEEDY","SPRESIANO","TAVARAN"];
     const ZONE = ["GRUPPO 1","GRUPPO 2","SGRIGLIATORE","ALTRO"];
     const ANOMALIE = ["ALLARME","BLOCCO","ALTRO"];
@@ -180,17 +185,16 @@
       zoneWrap: $("#zone"), anomWrap: $("#anomalia"),
       descr: $("#descr"), ops: $("#ops"),
       out: $("#out"), msg: $("#msg"),
-      copy: $("#copy"), print: $("#print"), reset: $("#reset"),
+      copy: $("#copy"), btnPrint: $("#btnPrint"), btnDownload: $("#btnDownload"), btnMail: $("#btnMail"), reset: $("#reset"),
       f1: $("#file1"), f2: $("#file2"), f3: $("#file3"),
       i1: $("#img1"), i2: $("#img2"), i3: $("#img3"),
-      pRoot: $("#printRoot"),
       pImp: $("#p_impianto"), pData: $("#p_data"), pOra: $("#p_ora"), pOper: $("#p_operatore"),
       pZona: $("#p_zona"), pAnom: $("#p_anomalia"),
       pDescr: $("#p_descr"), pOps: $("#p_ops"), pGal: $("#p_gallery"),
       verTag: $("#verTag"), pVerFoot: $("#p_version_footer")
     };
 
-    const state = { zone: new Set(), anomaly: "", imgs: {1:null,2:null,3:null} };
+    const state = { zone: new Set(), anomaly: "", imgs: {1:null,2:null,3:null}, lastReportText: "" };
 
     function initChoices() {
       const frag = document.createDocumentFragment();
@@ -238,6 +242,13 @@
       const mm = String(d.getMinutes()).padStart(2,"0");
       return hh + ":" + mm;
     }
+    function dateAsDDMMYYYY(raw) {
+      if (!raw || !raw.includes("-")) return "00000000";
+      const parts = raw.split("-");
+      if (parts.length !== 3) return "00000000";
+      const y = parts[0], m = parts[1], d = parts[2];
+      return d.padStart(2,"0") + m.padStart(2,"0") + y;
+    }
 
     function buildReport() {
       const plant = el.plant.value || "—";
@@ -249,18 +260,25 @@
       const desc = el.descr.value.trim() || "—";
       const ops = el.ops.value.trim() || "—";
 
-      const text =
-        "IMPIANTO: " + plant + "\n" +
-        "DATA: " + date + "\n" +
-        "ORA: " + time + "\n" +
-        "OPERATORE: " + oper + "\n" +
-        "ZONA: " + zones + "\n" +
-        "ANOMALIA: " + anom + "\n\n" +
-        "DESCRIZIONE ANOMALIA:\n" + desc + "\n\n" +
-        "OPERAZIONI EFFETTUATE:\n" + ops + "\n\n" +
-        "VERSIONE: " + VERSION;
-
-      el.out.value = text.replace(/\\n/g, "\n");
+      const lines = [
+        "IMPIANTO: " + plant,
+        "DATA: " + date,
+        "ORA: " + time,
+        "OPERATORE: " + oper,
+        "ZONA: " + zones,
+        "ANOMALIA: " + anom,
+        "",
+        "DESCRIZIONE ANOMALIA:",
+        desc,
+        "",
+        "OPERAZIONI EFFETTUATE:",
+        ops,
+        "",
+        "VERSIONE: " + VERSION
+      ];
+      const text = lines.join("\n");
+      state.lastReportText = text;
+      el.out.value = text;
 
       el.verTag.textContent = "Versione " + VERSION;
       el.pVerFoot.textContent = VERSION;
@@ -306,25 +324,280 @@
       }).catch(() => { el.msg.textContent = "Errore copia."; });
     }
 
-    function printPdf() {
-      const plant = el.plant.value.trim() || "IMPIANTO";
+    function filenameBase() {
+      const plant = (el.plant.value || "IMPIANTO").trim() || "IMPIANTO";
       const anom = state.anomaly || "TIPO ALLARME";
       const rawDate = el.date.value || "";
-      let datePart = "00000000";
-      if (rawDate && rawDate.includes("-")) {
-        const parts = rawDate.split("-");
-        if (parts.length === 3) {
-          const y = parts[0], m = parts[1], d = parts[2];
-          datePart = d.padStart(2,"0") + m.padStart(2,"0") + y;
-        }
-      }
+      const datePart = dateAsDDMMYYYY(rawDate);
       const safePlant = plant.replace(/[\/:*?"<>|]/g, " ");
       const safeAnom = anom.replace(/[\/:*?"<>|]/g, " ");
-      const newTitle = `${safePlant} - ${safeAnom} - ${datePart}`;
+      return safePlant + " - " + safeAnom + " - " + datePart;
+    }
+
+    function printPdf() {
       const oldTitle = document.title;
-      document.title = newTitle;
+      document.title = filenameBase();
       window.print();
       setTimeout(() => { document.title = oldTitle; }, 2000);
+    }
+
+    const A4W = 1654, A4H = 2339, MARGIN = 100;
+    const pdfState = { logo: undefined };
+
+    function loadLogo() {
+      return new Promise((resolve) => {
+        if (pdfState.logo !== undefined) return resolve(pdfState.logo);
+        const img = new Image();
+        img.onload = () => { pdfState.logo = img; resolve(img); };
+        img.onerror = () => { pdfState.logo = null; resolve(null); };
+        img.src = "logo_egp.png";
+      });
+    }
+
+    function wrapText(ctx, text, maxW) {
+      const words = String(text||"").split(/\s+/);
+      const lines = [];
+      let line = "";
+      for (const w of words) {
+        const test = line ? line + " " + w : w;
+        if (ctx.measureText(test).width <= maxW) line = test;
+        else { if (line) lines.push(line); line = w; }
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    async function renderPdfPage() {
+      const c = document.createElement("canvas");
+      c.width = A4W; c.height = A4H;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,A4W,A4H);
+
+      const logo = await loadLogo();
+      const left = MARGIN, right = A4W - MARGIN;
+      let y = MARGIN;
+
+      if (logo) {
+        const maxLogoW = A4W - MARGIN*2;
+        const maxLogoH = 280;
+        const sc = Math.min(maxLogoW/logo.width, maxLogoH/logo.height);
+        const lw = logo.width * sc, lh = logo.height * sc;
+        const lx = (A4W - lw)/2;
+        const ly = y;
+        ctx.drawImage(logo, lx, ly, lw, lh);
+        y = ly + lh + 20;
+      }
+
+      ctx.fillStyle = "#000";
+      ctx.textAlign = "center";
+      ctx.font = "bold 40px sans-serif";
+      ctx.fillText("UT Feltre • OU Quero", A4W/2, y);
+      y += 40;
+      ctx.font = "600 30px sans-serif";
+      ctx.fillText("Scheda Guasto", A4W/2, y);
+      ctx.font = "20px sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(VERSION, A4W - MARGIN, y - 30);
+
+      const maxW = right - left;
+      y += 40;
+
+      ctx.textAlign = "left";
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Impianto:", left, y);
+      ctx.font = "24px sans-serif";
+      ctx.fillText(el.plant.value || "—", left + 160, y);
+      y += 34;
+
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Data:", left, y);
+      ctx.font = "24px sans-serif";
+      ctx.fillText(el.date.value || "—", left + 160, y);
+      y += 34;
+
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Ora:", left, y);
+      ctx.font = "24px sans-serif";
+      ctx.fillText(el.time.value || "—", left + 160, y);
+      y += 34;
+
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Operatore:", left, y);
+      ctx.font = "24px sans-serif";
+      ctx.fillText(el.oper.value.trim() || "—", left + 160, y);
+      y += 34;
+
+      const zones = [...state.zone].join(", ") || "—";
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Zona:", left, y);
+      ctx.font = "24px sans-serif";
+      ctx.fillText(zones, left + 160, y);
+      y += 34;
+
+      const anom = state.anomaly || "—";
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Anomalia:", left, y);
+      ctx.font = "24px sans-serif";
+      ctx.fillText(anom, left + 160, y);
+      y += 40;
+
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Descrizione anomalia", left, y);
+      y += 30;
+      ctx.font = "24px sans-serif";
+      const descLines = wrapText(ctx, el.descr.value.trim() || "—", maxW);
+      for (const line of descLines) {
+        if (y > A4H - 520) break;
+        ctx.fillText(line, left, y);
+        y += 30;
+      }
+
+      y += 10;
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Operazioni effettuate", left, y);
+      y += 30;
+      ctx.font = "24px sans-serif";
+      const opsLines = wrapText(ctx, el.ops.value.trim() || "—", maxW);
+      for (const line of opsLines) {
+        if (y > A4H - 520) break;
+        ctx.fillText(line, left, y);
+        y += 30;
+      }
+
+      const imgAreaTop = Math.max(y + 20, A4H - 500);
+      const imgAreaBottom = A4H - MARGIN - 40;
+      const imgAreaH = imgAreaBottom - imgAreaTop;
+      const imgAreaW = right - left;
+      const urls = [state.imgs[1], state.imgs[2], state.imgs[3]].filter(Boolean);
+      if (urls.length > 0 && imgAreaH > 0) {
+        const slotH = imgAreaH / urls.length;
+        let ySlot = imgAreaTop;
+        for (const url of urls) {
+          await new Promise((resolve) => {
+            const im = new Image();
+            im.onload = () => {
+              const sc2 = Math.min(imgAreaW/im.width, slotH/im.height);
+              const w = im.width * sc2, h = im.height * sc2;
+              const x = left + (imgAreaW - w)/2;
+              const yy = ySlot + (slotH - h)/2;
+              ctx.drawImage(im, x, yy, w, h);
+              resolve();
+            };
+            im.onerror = () => resolve();
+            im.src = url;
+          });
+          ySlot += slotH;
+        }
+      }
+
+      ctx.font = "18px sans-serif";
+      ctx.fillStyle = "#333";
+      ctx.textAlign = "center";
+      ctx.fillText("Uso interno Enel Green Power • " + VERSION, A4W/2, A4H - MARGIN);
+
+      return c;
+    }
+
+    function canvasToJpegPage(canvas) {
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+      const b64 = dataUrl.split(",")[1];
+      const bin = atob(b64);
+      const len = bin.length;
+      const u8 = new Uint8Array(len);
+      for (let i=0;i<len;i++) u8[i] = bin.charCodeAt(i);
+      return { bytes: u8, w: canvas.width, h: canvas.height };
+    }
+
+    function makePdf(pages) {
+      const enc = new TextEncoder();
+      const chunks = [];
+      let offset = 0;
+      const NL = "\n";
+      const pushText = s => { const b = enc.encode(s); chunks.push(b); offset += b.length; };
+      const pushBytes = b => { chunks.push(b); offset += b.length; };
+
+      pushText("%PDF-1.3"+NL);
+      const rootId = 1, pagesId = 2;
+      let nextId = 3;
+      const kids = [];
+      const objOffsets = [0];
+
+      const writeObj = (id, content) => {
+        objOffsets[id] = offset;
+        pushText(id + " 0 obj"+NL + content + NL + "endobj"+NL);
+      };
+
+      for (const p of pages) {
+        const pageId = nextId++;
+        const imgId = nextId++;
+        const contId = nextId++;
+        kids.push(pageId + " 0 R");
+
+        writeObj(imgId, `<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>`+NL+"stream"+NL);
+        pushBytes(p.bytes);
+        pushText(NL+"endstream"+NL);
+
+        const content = `q ${p.w} 0 0 ${p.h} 0 0 cm /Im0 Do Q`;
+        const len = enc.encode(content).length + 2;
+        writeObj(contId, `<< /Length ${len} >>`+NL+"stream"+NL+content+NL+"endstream");
+
+        writeObj(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${p.w} ${p.h}] /Resources << /XObject << /Im0 ${imgId} 0 R >> >> /Contents ${contId} 0 R >>`);
+      }
+
+      writeObj(pagesId, `<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${kids.length} >>`);
+      writeObj(rootId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+
+      const startxref = offset;
+      const count = nextId - 1;
+      pushText("xref"+NL+"0 "+(count+1)+NL+"0000000000 65535 f "+NL);
+      for (let i=1;i<=count;i++) {
+        const off = String(objOffsets[i] || 0).padStart(10,"0");
+        pushText(off + " 00000 n "+NL);
+      }
+      pushText("trailer"+NL+`<< /Size ${count+1} /Root ${rootId} 0 R >>`+NL+"startxref"+NL+startxref+NL+"%%EOF");
+
+      let total = 0;
+      for (const c of chunks) total += c.length;
+      const out = new Uint8Array(total);
+      let pos = 0;
+      for (const c of chunks) { out.set(c,pos); pos += c.length; }
+      return out;
+    }
+
+    async function createPdfBlob() {
+      const c = await renderPdfPage();
+      const page = canvasToJpegPage(c);
+      const pdfBytes = makePdf([page]);
+      return new Blob([pdfBytes], {type:"application/pdf"});
+    }
+
+    async function downloadPdf() {
+      try {
+        const blob = await createPdfBlob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filenameBase() + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+      } catch(e) {
+        console.error(e);
+        el.msg.textContent = "Errore generazione PDF.";
+      }
+    }
+
+    function sendMail() {
+      const plant = (el.plant.value || "IMPIANTO").trim() || "IMPIANTO";
+      const anom = state.anomaly || "TIPO ALLARME";
+      const time = el.time.value || "ORA";
+      const datePart = dateAsDDMMYYYY(el.date.value || "");
+      const subj = plant + " - " + anom + " - " + time + " - " + datePart;
+
+      const body = state.lastReportText || "";
+      const mailto = "mailto:?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
+      window.location.href = mailto;
     }
 
     function resetAll() {
@@ -354,7 +627,9 @@
       el.descr.addEventListener("input", buildReport);
       el.ops.addEventListener("input", buildReport);
       el.copy.addEventListener("click", copyToClipboard);
-      el.print.addEventListener("click", printPdf);
+      el.btnPrint.addEventListener("click", printPdf);
+      el.btnDownload.addEventListener("click", downloadPdf);
+      el.btnMail.addEventListener("click", sendMail);
       el.reset.addEventListener("click", resetAll);
       buildReport();
     }

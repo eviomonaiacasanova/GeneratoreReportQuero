@@ -44,6 +44,13 @@ Per limitarne l’uso ai soli colleghi può essere protetto tramite autenticazio
 
 ## 📜 Changelog
 
+### 5.4.0
+- Separati i pulsanti di stampa e download PDF
+- Introdotta generazione PDF diretta da canvas A4 con logo grande e footer versione
+- Standardizzato il nome file: IMPIANTO - TIPO ALLARME - DDMMYYYY.pdf
+- Aggiunto pulsante Mail con oggetto IMPIANTO - TIPO ALLARME - ORA - DDMMYYYY e corpo auto-compilato dal report
+- Aggiornata versione visibile in interfaccia e nel footer di stampa a v5.4.0
+
 ### 5.3.10 – 2025-10-06
 - **Aggiunto:** reintroduzione del logo grande centrato nei PDF, ora gestito automaticamente anche su report multipagina.  
 - **Aggiunto:** visualizzazione della **versione corrente** sia nel testo generato che nel PDF, per facilitare il tracciamento dei feedback.  
