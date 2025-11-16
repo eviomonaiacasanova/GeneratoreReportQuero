@@ -4,7 +4,3 @@
 
 [dev]
   publish = "docs"
-
-[redirects]
-from = “/*” to = “/index.html”
-status = 200
