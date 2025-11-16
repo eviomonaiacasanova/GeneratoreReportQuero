@@ -3,12 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Generatore report v5.4.0</title>
+  <title>Generatore report v5.4.1</title>
   <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     :root { --bg:#0b0c10; --panel:#14161c; --ink:#e9eef7; --muted:#aab2bf; --accent:#4e8df5; --line:#2a2e36; }
     *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
     .wrap{max-width:920px;margin:28px auto 110px;padding:0 16px}
     h1{margin:0 0 18px;display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center}
     .logo{height:90px;width:120px;object-fit:contain}
@@ -18,21 +24,68 @@
     .full{grid-column:1 / -1}
     label{display:block;font-weight:700;margin-bottom:6px}
     select,input[type=date],input[type=time],input[type=text],textarea{
-      background:#1a1d25;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink);font:inherit
+      background:#1c2130;
+      border:1px solid #3a4254;
+      border-radius:8px;
+      padding:10px;
+      color:var(--ink);
+      font:inherit;
     }
     textarea{min-height:110px;resize:vertical;white-space:pre-wrap}
     .chips{display:flex;gap:10px;flex-wrap:wrap}
-    .chip{border:1px solid var(--line);background:#1a1d25;border-radius:999px;padding:8px 12px;cursor:pointer;font-weight:700}
-    .chip[data-on="1"]{background:#223b6f;border-color:#3e6ddc}
+    .chip{
+      border:1px solid #3a4254;
+      background:#262b3a;
+      border-radius:999px;
+      padding:8px 12px;
+      cursor:pointer;
+      font-weight:700;
+      color:#f4f6ff;
+    }
+    .chip[data-on="1"]{
+      background:#223b6f;
+      border-color:#3e6ddc;
+      color:#ffffff;
+    }
     .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-    .btn{background:#1a1d25;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
-    .btn.primary{background:#4e8df5;border-color:#4e8df5;color:#fff}
+    .btn{
+      background:#202534;
+      border:1px solid #3a4254;
+      border-radius:10px;
+      padding:10px 14px;
+      font-weight:800;
+      cursor:pointer;
+      color:#f4f6ff;
+    }
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
     .btn.danger{background:#922c2c;border-color:#b03a3a;color:#fff}
     .muted{color:var(--muted);font-size:.9rem}
     .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .slot{border:1px dashed var(--line);border-radius:10px;padding:10px;display:grid;gap:8px}
-    .slot img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#0e1116;border-radius:6px}
-    .slot .row{display:flex;gap:8px}
+    .photo-box{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#0e1116;
+      border-radius:6px;
+      aspect-ratio:4/3;
+      cursor:pointer;
+      overflow:hidden;
+    }
+    .photo-box img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      display:none;
+    }
+    .photo-box .camera-icon{
+      font-size:2rem;
+      color:#6f7a90;
+    }
+    .photo-box.has-image .camera-icon{display:none}
+    .photo-box.has-image img{display:block}
+    .slot .row{display:flex;gap:8px;margin-top:6px}
     .slot input[type=file]{display:none}
     footer{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(20,22,28,0),rgba(20,22,28,1) 40%)}
     .foot{max-width:920px;margin:0 auto;padding:10px 16px 14px;display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted)}
@@ -100,36 +153,46 @@
           <textarea id="ops" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
         </div>
         <div class="full">
+          <label for="note">Note operatore</label>
+          <textarea id="note" placeholder="Appunti extra sull'intervento, condizioni particolari, richieste successive..."></textarea>
+        </div>
+        <div class="full">
           <label>Allegati foto (max 3)</label>
           <div class="gallery">
             <div class="slot" data-slot="1">
-              <img id="img1" alt="Foto 1" />
+              <div class="photo-box" data-photo="1">
+                <i class="fa-solid fa-camera camera-icon"></i>
+                <img id="img1" alt="Foto 1">
+              </div>
               <div class="row">
-                <button class="btn" data-up="1" type="button">Carica 1</button>
-                <button class="btn danger" data-del="1" type="button">Elimina</button>
+                <button class="btn danger" data-del="1" type="button" style="display:none">Elimina foto</button>
                 <input type="file" id="file1" accept="image/*">
               </div>
             </div>
             <div class="slot" data-slot="2">
-              <img id="img2" alt="Foto 2" />
+              <div class="photo-box" data-photo="2">
+                <i class="fa-solid fa-camera camera-icon"></i>
+                <img id="img2" alt="Foto 2">
+              </div>
               <div class="row">
-                <button class="btn" data-up="2" type="button">Carica 2</button>
-                <button class="btn danger" data-del="2" type="button">Elimina</button>
+                <button class="btn danger" data-del="2" type="button" style="display:none">Elimina foto</button>
                 <input type="file" id="file2" accept="image/*">
               </div>
             </div>
             <div class="slot" data-slot="3">
-              <img id="img3" alt="Foto 3" />
+              <div class="photo-box" data-photo="3">
+                <i class="fa-solid fa-camera camera-icon"></i>
+                <img id="img3" alt="Foto 3">
+              </div>
               <div class="row">
-                <button class="btn" data-up="3" type="button">Carica 3</button>
-                <button class="btn danger" data-del="3" type="button">Elimina</button>
+                <button class="btn danger" data-del="3" type="button" style="display:none">Elimina foto</button>
                 <input type="file" id="file3" accept="image/*">
               </div>
             </div>
           </div>
         </div>
         <div class="full">
-          <label for="out">Report generato (include VERSIONE)</label>
+          <label for="out">Report generato</label>
           <textarea id="out" readonly></textarea>
         </div>
         <div class="full actions">
@@ -161,6 +224,8 @@
     <div id="p_descr" style="white-space:pre-wrap"></div>
     <div class="section-title">Operazioni effettuate</div>
     <div id="p_ops" style="white-space:pre-wrap"></div>
+    <div class="section-title">Note operatore</div>
+    <div id="p_note" style="white-space:pre-wrap"></div>
     <div class="section-title">Allegati</div>
     <div class="print-gallery" id="p_gallery"></div>
     <div class="waterline">Uso interno Enel Green Power • <span id="p_version_footer"></span></div>
@@ -169,12 +234,12 @@
 
   <footer>
     <div class="foot">
-      <span class="badge">Generatore di report • v5.4.0</span>
+      <span class="badge">Generatore di report • v5.4.1</span>
     </div>
   </footer>
 
   <script>
-    const VERSION = "v5.4.0";
+    const VERSION = "v5.4.1";
     const PLANTS = ["ALTANON","ANZU","ARCADE","BUSCHE DMV","BUSCHE SBARRAMENTO","CAERANO","CASTELVIERO","CROCE DEL GALLO","FONDERIA","PEDEROBBA","POMPE SONNA","PONTE PIETRA","PONTE SAN MARTINO","PRIULA","QUERO","SPEEDY","SPRESIANO","TAVARAN"];
     const ZONE = ["GRUPPO 1","GRUPPO 2","SGRIGLIATORE","ALTRO"];
     const ANOMALIE = ["ALLARME","BLOCCO","ALTRO"];
@@ -183,14 +248,14 @@
     const el = {
       plant: $("#impianto"), date: $("#data"), time: $("#ora"), oper: $("#operatore"),
       zoneWrap: $("#zone"), anomWrap: $("#anomalia"),
-      descr: $("#descr"), ops: $("#ops"),
+      descr: $("#descr"), ops: $("#ops"), note: $("#note"),
       out: $("#out"), msg: $("#msg"),
       copy: $("#copy"), btnPrint: $("#btnPrint"), btnDownload: $("#btnDownload"), btnMail: $("#btnMail"), reset: $("#reset"),
       f1: $("#file1"), f2: $("#file2"), f3: $("#file3"),
       i1: $("#img1"), i2: $("#img2"), i3: $("#img3"),
       pImp: $("#p_impianto"), pData: $("#p_data"), pOra: $("#p_ora"), pOper: $("#p_operatore"),
       pZona: $("#p_zona"), pAnom: $("#p_anomalia"),
-      pDescr: $("#p_descr"), pOps: $("#p_ops"), pGal: $("#p_gallery"),
+      pDescr: $("#p_descr"), pOps: $("#p_ops"), pNote: $("#p_note"), pGal: $("#p_gallery"),
       verTag: $("#verTag"), pVerFoot: $("#p_version_footer")
     };
 
@@ -259,6 +324,7 @@
       const anom = state.anomaly || "—";
       const desc = el.descr.value.trim() || "—";
       const ops = el.ops.value.trim() || "—";
+      const note = el.note.value.trim() || "—";
 
       const lines = [
         "IMPIANTO: " + plant,
@@ -273,6 +339,9 @@
         "",
         "OPERAZIONI EFFETTUATE:",
         ops,
+        "",
+        "NOTE OPERATORE:",
+        note,
         "",
         "VERSIONE: " + VERSION
       ];
@@ -290,6 +359,7 @@
       el.pAnom.textContent = anom;
       el.pDescr.textContent = desc;
       el.pOps.textContent = ops;
+      el.pNote.textContent = note;
 
       el.pGal.innerHTML = "";
       for (const k of [1,2,3]) {
@@ -301,17 +371,34 @@
     function bindImages(idx) {
       const file = el["f"+idx];
       const img = el["i"+idx];
-      const upBtn = document.querySelector('[data-up="'+idx+'"]');
       const delBtn = document.querySelector('[data-del="'+idx+'"]');
-      upBtn.addEventListener("click", () => file.click());
+      const box = document.querySelector('.photo-box[data-photo="'+idx+'"]');
+
+      const triggerUpload = () => file.click();
+      box.addEventListener("click", triggerUpload);
+
       file.addEventListener("change", () => {
         const f = file.files && file.files[0];
         if (!f || !f.type.startsWith("image/")) return;
         const reader = new FileReader();
-        reader.onload = e => { img.src = e.target.result; state.imgs[idx] = e.target.result; buildReport(); };
+        reader.onload = e => {
+          img.src = e.target.result;
+          state.imgs[idx] = e.target.result;
+          box.classList.add("has-image");
+          if (delBtn) delBtn.style.display = "inline-block";
+          buildReport();
+        };
         reader.readAsDataURL(f);
       });
-      delBtn.addEventListener("click", () => { img.removeAttribute("src"); state.imgs[idx] = null; file.value=""; buildReport(); });
+
+      delBtn.addEventListener("click", () => {
+        img.removeAttribute("src");
+        state.imgs[idx] = null;
+        file.value = "";
+        box.classList.remove("has-image");
+        delBtn.style.display = "none";
+        buildReport();
+      });
     }
 
     function copyToClipboard() {
@@ -369,7 +456,8 @@
 
     async function renderPdfPage() {
       const c = document.createElement("canvas");
-      c.width = A4W; c.height = A4H;
+      c.width = A4W;
+      c.height = A4H;
       const ctx = c.getContext("2d");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0,0,A4W,A4H);
@@ -389,7 +477,7 @@
         y = ly + lh + 20;
       }
 
-      ctx.fillStyle = "#000";
+      ctx.fillStyle = "#000000";
       ctx.textAlign = "center";
       ctx.font = "bold 40px sans-serif";
       ctx.fillText("UT Feltre • OU Quero", A4W/2, y);
@@ -465,6 +553,18 @@
         y += 30;
       }
 
+      y += 10;
+      ctx.font = "bold 26px sans-serif";
+      ctx.fillText("Note operatore", left, y);
+      y += 30;
+      ctx.font = "24px sans-serif";
+      const noteLines = wrapText(ctx, el.note.value.trim() || "—", maxW);
+      for (const line of noteLines) {
+        if (y > A4H - 520) break;
+        ctx.fillText(line, left, y);
+        y += 30;
+      }
+
       const imgAreaTop = Math.max(y + 20, A4H - 500);
       const imgAreaBottom = A4H - MARGIN - 40;
       const imgAreaH = imgAreaBottom - imgAreaTop;
@@ -492,7 +592,7 @@
       }
 
       ctx.font = "18px sans-serif";
-      ctx.fillStyle = "#333";
+      ctx.fillStyle = "#333333";
       ctx.textAlign = "center";
       ctx.fillText("Uso interno Enel Green Power • " + VERSION, A4W/2, A4H - MARGIN);
 
@@ -505,7 +605,7 @@
       const bin = atob(b64);
       const len = bin.length;
       const u8 = new Uint8Array(len);
-      for (let i=0;i<len;i++) u8[i] = bin.charCodeAt(i);
+      for (let i = 0; i < len; i++) u8[i] = bin.charCodeAt(i);
       return { bytes: u8, w: canvas.width, h: canvas.height };
     }
 
@@ -517,7 +617,7 @@
       const pushText = s => { const b = enc.encode(s); chunks.push(b); offset += b.length; };
       const pushBytes = b => { chunks.push(b); offset += b.length; };
 
-      pushText("%PDF-1.3"+NL);
+      pushText("%PDF-1.3" + NL);
       const rootId = 1, pagesId = 2;
       let nextId = 3;
       const kids = [];
@@ -525,7 +625,7 @@
 
       const writeObj = (id, content) => {
         objOffsets[id] = offset;
-        pushText(id + " 0 obj"+NL + content + NL + "endobj"+NL);
+        pushText(id + " 0 obj" + NL + content + NL + "endobj" + NL);
       };
 
       for (const p of pages) {
@@ -534,13 +634,13 @@
         const contId = nextId++;
         kids.push(pageId + " 0 R");
 
-        writeObj(imgId, `<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>`+NL+"stream"+NL);
+        writeObj(imgId, `<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>` + NL + "stream" + NL);
         pushBytes(p.bytes);
-        pushText(NL+"endstream"+NL);
+        pushText(NL + "endstream" + NL);
 
         const content = `q ${p.w} 0 0 ${p.h} 0 0 cm /Im0 Do Q`;
-        const len = enc.encode(content).length + 2;
-        writeObj(contId, `<< /Length ${len} >>`+NL+"stream"+NL+content+NL+"endstream");
+        const lenContent = enc.encode(content).length + 2;
+        writeObj(contId, `<< /Length ${lenContent} >>` + NL + "stream" + NL + content + NL + "endstream");
 
         writeObj(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${p.w} ${p.h}] /Resources << /XObject << /Im0 ${imgId} 0 R >> >> /Contents ${contId} 0 R >>`);
       }
@@ -550,26 +650,27 @@
 
       const startxref = offset;
       const count = nextId - 1;
-      pushText("xref"+NL+"0 "+(count+1)+NL+"0000000000 65535 f "+NL);
-      for (let i=1;i<=count;i++) {
-        const off = String(objOffsets[i] || 0).padStart(10,"0");
-        pushText(off + " 00000 n "+NL);
+      pushText("xref" + NL + "0 " + (count + 1) + NL + "0000000000 65535 f " + NL);
+      for (let i = 1; i <= count; i++) {
+        const off = String(objOffsets[i] || 0).padStart(10, "0");
+        pushText(off + " 00000 n " + NL);
       }
-      pushText("trailer"+NL+`<< /Size ${count+1} /Root ${rootId} 0 R >>`+NL+"startxref"+NL+startxref+NL+"%%EOF");
+      pushText("trailer" + NL + `<< /Size ${count + 1} /Root ${rootId} 0 R >>` + NL + "startxref" + NL + startxref + NL + "%%EOF");
 
       let total = 0;
       for (const c of chunks) total += c.length;
       const out = new Uint8Array(total);
       let pos = 0;
-      for (const c of chunks) { out.set(c,pos); pos += c.length; }
+      for (const c of chunks) { out.set(c, pos); pos += c.length; }
       return out;
     }
 
     async function createPdfBlob() {
+      buildReport();
       const c = await renderPdfPage();
       const page = canvasToJpegPage(c);
       const pdfBytes = makePdf([page]);
-      return new Blob([pdfBytes], {type:"application/pdf"});
+      return new Blob([pdfBytes], { type: "application/pdf" });
     }
 
     async function downloadPdf() {
@@ -581,8 +682,11 @@
         a.download = filenameBase() + ".pdf";
         document.body.appendChild(a);
         a.click();
-        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-      } catch(e) {
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } catch (e) {
         console.error(e);
         el.msg.textContent = "Errore generazione PDF.";
       }
@@ -607,9 +711,18 @@
       el.oper.value = "";
       el.descr.value = "";
       el.ops.value = "";
+      el.note.value = "";
       state.zone = new Set();
       state.anomaly = "";
-      for (const k of [1,2,3]) { state.imgs[k]=null; el["i"+k].removeAttribute("src"); el["f"+k].value=""; }
+      for (const k of [1,2,3]) {
+        state.imgs[k] = null;
+        el["i"+k].removeAttribute("src");
+        el["f"+k].value = "";
+        const box = document.querySelector('.photo-box[data-photo="'+k+'"]');
+        const delBtn = document.querySelector('[data-del="'+k+'"]');
+        if (box) box.classList.remove("has-image");
+        if (delBtn) delBtn.style.display = "none";
+      }
       [...el.zoneWrap.children].forEach(b => b.dataset.on = "0");
       [...el.anomWrap.children].forEach(b => b.dataset.on = "0");
       buildReport();
@@ -626,6 +739,7 @@
       el.oper.addEventListener("input", buildReport);
       el.descr.addEventListener("input", buildReport);
       el.ops.addEventListener("input", buildReport);
+      el.note.addEventListener("input", buildReport);
       el.copy.addEventListener("click", copyToClipboard);
       el.btnPrint.addEventListener("click", printPdf);
       el.btnDownload.addEventListener("click", downloadPdf);

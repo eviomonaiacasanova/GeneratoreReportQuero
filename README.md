@@ -9,11 +9,9 @@ Non richiede backend ed è pensato per un utilizzo interno, sviluppato in **HTML
 - **Generazione automatica** in tempo reale del report finale in sola lettura.
 - **NUOVO REPORT** per ripulire la compilazione e ricominciare.
 - **Condivisione** del report via:
-  - **Email** (destinatari configurabili).
-- **Esportazione PDF** e pulsante **Condividi PDF**.
-- **Branding**: titolo pagina “Generatore” e logo `logo_egp.png`.
-- **Opzione ALTRO** nel campo anomalia.
-- **Donazione volontaria** tramite Satispay.
+  - **Email**
+  - **PDF**
+  - **Appunti**
 
 ## ⚙️ Requisiti
 - Browser moderno (Chrome, Edge, Firefox, Safari).
@@ -26,10 +24,7 @@ Non richiede backend ed è pensato per un utilizzo interno, sviluppato in **HTML
 3. Il report viene aggiornato automaticamente durante la compilazione.
 4. Possibilità di:
    - Condividere via **email**
-   - Condividere su **WhatsApp** o **Telegram**
    - Stampare o salvare in **PDF**
-   - Condividere direttamente in **PDF**
-   - Effettuare una **donazione** via Satispay
 
 ## 🔒 Accesso
 Il progetto è destinato ad hosting statico.  
@@ -44,7 +39,15 @@ Per limitarne l’uso ai soli colleghi può essere protetto tramite autenticazio
 
 ## 📜 Changelog
 
-### 5.4.0
+### 5.4.1 - 2025-11-16
+- Rimossi i pulsanti "Carica" dagli slot foto: il caricamento avviene cliccando sul riquadro/icona fotocamera
+- Pulsante "Elimina" rinominato in "Elimina foto" e visibile solo se è presente un'immagine nello slot
+- Aggiunto riquadro "Note operatore" (riportato anche in report, PDF e layout stampa)
+- Titolo del riquadro "Report generato" semplificato, mantenendo la riga finale con la VERSIONE
+- Migliorata leggibilità dei pulsanti e delle chip (colori più chiari per uso da mobile)
+- Aggiunta icona predefinita Font Awesome `fa-camera` nei riquadri foto, cliccabile per caricare immagini
+
+### 5.4.0 - 2025-11-14
 - Separati i pulsanti di stampa e download PDF
 - Introdotta generazione PDF diretta da canvas A4 con logo grande e footer versione
 - Standardizzato il nome file: IMPIANTO - TIPO ALLARME - DDMMYYYY.pdf
