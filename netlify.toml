@@ -4,3 +4,8 @@
 
 [dev]
   publish = "docs"
+
+  [[redirects]]
+  from = "/*"
+  to = "/docs/index.html"
+  status = 200
