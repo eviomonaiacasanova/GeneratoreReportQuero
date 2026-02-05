@@ -1,0 +1,117 @@
+/* App-specific components */
+
+.brand-logo {
+  height: 44px;
+  width: 60px;
+  object-fit: contain;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #1a2a22;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+.chip.is-active {
+  background: #2d4236;
+  border-color: rgba(255,255,255,0.25);
+}
+
+.badge {
+  background: #0f1620;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.btn-danger {
+  background: #4a1f1f;
+  border-color: rgba(255,107,107,0.4);
+}
+
+.btn-danger:hover {
+  background: #5a2626;
+}
+
+.meta-grid select {
+  background: #2b3f32;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px;
+  width: 100%;
+}
+
+.photo-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.photo-card {
+  background: rgba(0,0,0,0.25);
+  border: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.photo-preview {
+  background: #0d131b;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  height: 150px;
+  overflow: hidden;
+}
+
+.photo-preview img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.photo-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+[data-photo-input] {
+  display: none;
+}
+
+.preview-box {
+  min-height: 220px;
+  white-space: pre-wrap;
+}
+
+.actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .photo-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,25 @@
+/* ========================================================================== */
+/* THEME (colori, font, reset) */
+
+:root {
+  --bg: #2f5a35;
+  --border: rgba(255,255,255,0.1);
+  --btn: #1e2532;
+  --btn2: #273244;
+  --danger: #ff6b6b;
+  --muted: #b2c0cf;
+  --panel: #121820;
+  --text: #edf3f8;
+  --text-main: #f4f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 0;
+}

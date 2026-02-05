@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template Suite</title>
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="title">
+        <h1>Titolo Pagina</h1>
+        <div class="subtitle" id="subtitle">Sottotitolo / stato</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <span class="small-muted">Azioni</span>
+        <button class="btn btn-primary">🆕 Nuovo</button>
+        <button class="btn">💾 Salva</button>
+      </div>
+      <div class="toolbar-group">
+        <details class="toolbar-menu">
+          <summary class="btn">⚙️ Altro</summary>
+          <div class="toolbar-menu-panel">
+            <button class="btn">🧹 Pulisci</button>
+            <button class="btn">🗑️ Elimina</button>
+          </div>
+        </details>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Sezione</div>
+      </div>
+      <div class="meta-grid">
+        <label>
+          <span>Campo 1</span>
+          <input type="text" placeholder="Esempio" />
+        </label>
+        <label>
+          <span>Campo 2</span>
+          <input type="text" placeholder="Esempio" />
+        </label>
+        <label class="full">
+          <span>Note</span>
+          <textarea class="note" placeholder="Annotazioni..."></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Tabella</div>
+      </div>
+      <div class="sections">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Colonna 1</th>
+              <th>Colonna 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="muted" colspan="2">Nessun dato.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">Template suite v1.0.0</footer>
+
+  <script src="js/app-base.js"></script>
+  <script>
+    // Esempio: lascia aperto solo un menu alla volta.
+    bindSingleOpenMenu(".toolbar-menu");
+  </script>
+</body>
+</html>

@@ -1,146 +1,150 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Generatore report v5.4.1</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generatore schede guasto</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-  <div class="wrap">
-    <h1>
-      <img class="logo" src="logo_egp.png" alt="Logo">
-      <div>
-        <div style="font-weight:900;font-size:1.4rem">Generatore schede guasti</div>
-        <div class="subtitle">UT Feltre • OU Quero</div>
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="assets/img/logo_egp.png" alt="Logo" />
+      <div class="title">
+        <h1>Generatore schede guasto</h1>
+        <div class="subtitle">Reperibilita • UT Feltre • OU Quero</div>
       </div>
-    </h1>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <span class="small-muted">Versione</span>
+        <span class="badge" id="versionLabel">v5.4.0</span>
+      </div>
+    </div>
+  </header>
 
-    <div class="panel">
-      <div class="grid">
-        <div class="full">
-          <label for="impianto">Impianto</label>
-          <select id="impianto">
-            <option value="" selected>— seleziona impianto —</option>
+  <main class="container">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Dati intervento</div>
+      </div>
+      <div class="meta-grid">
+        <label class="full">
+          <span>Impianto</span>
+          <select id="plantSelect">
+            <option value="">— seleziona impianto —</option>
           </select>
-        </div>
-        <div>
-          <label for="data">Data anomalia</label>
-          <input type="date" id="data">
-        </div>
-        <div>
-          <label for="ora">Orario anomalia</label>
-          <input type="time" id="ora">
-        </div>
-        <div>
-          <label for="operatore">Operatore</label>
-          <input type="text" id="operatore" placeholder="Nome e cognome o sigla">
-        </div>
-        <div class="full">
-          <label>Zona <span class="subtitle">(clic per selezionare/deselezionare)</span></label>
-          <div id="zone" class="chips"></div>
-        </div>
-        <div class="full">
-          <label>Anomalia <span class="subtitle">(scelta singola)</span></label>
-          <div id="anomalia" class="chips"></div>
-        </div>
-        <div class="full">
-          <label for="descr">Descrizione anomalia</label>
-          <textarea id="descr" placeholder="Descrivi l'anomalia riscontrata..."></textarea>
-        </div>
-        <div class="full">
-          <label for="ops">Operazioni effettuate</label>
-          <textarea id="ops" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
-        </div>
-        <div class="full">
-          <label for="note">Note operatore</label>
-          <textarea id="note" placeholder="Appunti extra sull'intervento, condizioni particolari, richieste successive..."></textarea>
-        </div>
-        <div class="full">
-          <label>Allegati foto (max 3)</label>
-          <div class="gallery">
-            <div class="slot" data-slot="1">
-              <div class="photo-box" data-photo="1">
-                <i class="fa-solid fa-camera camera-icon"></i>
-                <img id="img1" alt="Foto 1">
-              </div>
-              <div class="row">
-                <button class="btn danger" data-del="1" type="button" style="display:none">Elimina foto</button>
-                <input type="file" id="file1" accept="image/*">
-              </div>
+        </label>
+        <label>
+          <span>Data anomalia</span>
+          <input type="date" id="dateInput" />
+        </label>
+        <label>
+          <span>Orario anomalia</span>
+          <input type="time" id="timeInput" />
+        </label>
+        <label class="full">
+          <span>Operatore</span>
+          <input type="text" id="operatorInput" placeholder="Nome e cognome o sigla" />
+        </label>
+        <label class="full">
+          <span>Zona (selezione multipla)</span>
+          <div class="chips" id="zoneChips"></div>
+        </label>
+        <label class="full">
+          <span>Anomalia (scelta singola)</span>
+          <div class="chips" id="anomalyChips"></div>
+        </label>
+        <label class="full">
+          <span>Descrizione anomalia</span>
+          <textarea id="descInput" class="note" placeholder="Descrivi l'anomalia riscontrata..."></textarea>
+        </label>
+        <label class="full">
+          <span>Operazioni effettuate</span>
+          <textarea id="opsInput" class="note" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Allegati foto</div>
+        <div class="panel-actions small-muted">Massimo 3 foto</div>
+      </div>
+      <div class="sections">
+        <div class="photo-grid">
+          <div class="photo-card" data-photo="0">
+            <div class="photo-preview">
+              <img alt="Foto 1" data-photo-img />
             </div>
-            <div class="slot" data-slot="2">
-              <div class="photo-box" data-photo="2">
-                <i class="fa-solid fa-camera camera-icon"></i>
-                <img id="img2" alt="Foto 2">
-              </div>
-              <div class="row">
-                <button class="btn danger" data-del="2" type="button" style="display:none">Elimina foto</button>
-                <input type="file" id="file2" accept="image/*">
-              </div>
+            <div class="photo-meta" data-photo-name>Foto 1: nessun file</div>
+            <div class="actions-inline">
+              <input type="file" accept="image/*" data-photo-input />
+              <button class="btn" type="button" data-photo-pick>Aggiungi foto</button>
+              <button class="icon-btn danger" type="button" data-photo-remove>Rimuovi</button>
             </div>
-            <div class="slot" data-slot="3">
-              <div class="photo-box" data-photo="3">
-                <i class="fa-solid fa-camera camera-icon"></i>
-                <img id="img3" alt="Foto 3">
-              </div>
-              <div class="row">
-                <button class="btn danger" data-del="3" type="button" style="display:none">Elimina foto</button>
-                <input type="file" id="file3" accept="image/*">
-              </div>
+          </div>
+          <div class="photo-card" data-photo="1">
+            <div class="photo-preview">
+              <img alt="Foto 2" data-photo-img />
+            </div>
+            <div class="photo-meta" data-photo-name>Foto 2: nessun file</div>
+            <div class="actions-inline">
+              <input type="file" accept="image/*" data-photo-input />
+              <button class="btn" type="button" data-photo-pick>Aggiungi foto</button>
+              <button class="icon-btn danger" type="button" data-photo-remove>Rimuovi</button>
+            </div>
+          </div>
+          <div class="photo-card" data-photo="2">
+            <div class="photo-preview">
+              <img alt="Foto 3" data-photo-img />
+            </div>
+            <div class="photo-meta" data-photo-name>Foto 3: nessun file</div>
+            <div class="actions-inline">
+              <input type="file" accept="image/*" data-photo-input />
+              <button class="btn" type="button" data-photo-pick>Aggiungi foto</button>
+              <button class="icon-btn danger" type="button" data-photo-remove>Rimuovi</button>
             </div>
           </div>
         </div>
-        <div class="full">
-          <label for="out">Report generato</label>
-          <textarea id="out" readonly></textarea>
-        </div>
-        <div class="full actions">
-          <button id="copy" class="btn primary" type="button">Copia</button>
-          <button id="btnPrint" class="btn" type="button">Stampa</button>
-          <button id="btnDownload" class="btn" type="button">Download PDF</button>
-          <button id="btnMail" class="btn" type="button">Mail</button>
-          <button id="reset" class="btn danger" type="button">Nuovo report</button>
-          <span class="muted" id="msg"></span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Anteprima testo</div>
+        <div class="panel-actions">
+          <span class="status" id="statusMsg"></span>
         </div>
       </div>
-    </div>
-  </div>
+      <div class="sections">
+        <textarea id="previewOutput" class="note preview-box" readonly></textarea>
+      </div>
+    </section>
 
-  <div class="print-root" id="printRoot">
-    <div class="print-header">
-      <img class="big-logo" src="logo_egp.png" alt="Logo grande">
-      <div style="font-size:18pt;font-weight:900">UT Feltre • OU Quero</div>
-      <div style="font-size:14pt;font-weight:700">Scheda Guasto</div>
-      <div id="verTag" style="margin-top:6px;font-size:11pt;color:#333"></div>
-    </div>
-    <div class="kv"><b>Impianto:</b> <span id="p_impianto"></span></div>
-    <div class="kv"><b>Data:</b> <span id="p_data"></span></div>
-    <div class="kv"><b>Ora:</b> <span id="p_ora"></span></div>
-    <div class="kv"><b>Operatore:</b> <span id="p_operatore"></span></div>
-    <div class="kv"><b>Zona:</b> <span id="p_zona"></span></div>
-    <div class="kv"><b>Anomalia:</b> <span id="p_anomalia"></span></div>
-    <div class="section-title">Descrizione anomalia</div>
-    <div id="p_descr" style="white-space:pre-wrap"></div>
-    <div class="section-title">Operazioni effettuate</div>
-    <div id="p_ops" style="white-space:pre-wrap"></div>
-    <div class="section-title">Note operatore</div>
-    <div id="p_note" style="white-space:pre-wrap"></div>
-    <div class="section-title">Allegati</div>
-    <div class="print-gallery" id="p_gallery"></div>
-    <div class="waterline">Uso interno Enel Green Power • <span id="p_version_footer"></span></div>
-    <div class="page-break"></div>
-  </div>
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Azioni</div>
+      </div>
+      <div class="sections actions-bar">
+        <button class="btn btn-primary" id="copyBtn" type="button">Copia</button>
+        <button class="btn" id="printBtn" type="button">Stampa</button>
+        <button class="btn" id="downloadBtn" type="button">Download PDF</button>
+        <button class="btn" id="mailBtn" type="button">Mail</button>
+        <button class="btn btn-danger" id="resetBtn" type="button">Nuovo report</button>
+      </div>
+    </section>
+  </main>
 
-  <footer>
-    <div class="foot">
-      <span class="badge">Generatore di report • v5.4.1</span>
-    </div>
-  </footer>
+  <footer class="app-footer">Generatore report reperibilita • <span id="versionFooter">v5.4.0</span></footer>
 
-  <script src="pdf.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="lib/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/shareReport.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
