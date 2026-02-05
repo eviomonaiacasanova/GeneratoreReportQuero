@@ -1,4 +1,4 @@
-const VERSION = "v5.5.0";
+const VERSION = "v6.0.0";
 const PLANTS_URL = "data/plants.json";
 const DEFAULT_PLANTS = [
   "ALTANON",

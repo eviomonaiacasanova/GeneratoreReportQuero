@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/theme.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
 </head>
 <body x-data="reportApp()">
   <header class="topbar">
@@ -89,37 +90,37 @@
       <div class="sections">
         <div class="photo-grid">
           <div class="photo-card" data-photo="0">
-            <div class="photo-preview">
+            <div class="photo-preview is-clickable" @click="pickPhoto(0)">
+              <i class="fa-solid fa-camera photo-placeholder" aria-hidden="true" x-show="!photos[0]"></i>
               <img alt="Foto 1" data-photo-img x-show="photos[0]" :src="photos[0]?.dataUrl" />
+              <button class="photo-remove" type="button" aria-label="Rimuovi foto 1" x-show="photos[0]" @click.stop="removePhoto(0)">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
             </div>
             <div class="photo-meta" data-photo-name x-text="photoLabel(0)">Foto 1: nessun file</div>
-            <div class="actions-inline">
-              <input type="file" accept="image/*" data-photo-input x-ref="photoInput0" @change="onPhotoChange($event, 0)" />
-              <button class="btn" type="button" data-photo-pick @click="pickPhoto(0)">Aggiungi foto</button>
-              <button class="icon-btn danger" type="button" data-photo-remove @click="removePhoto(0)" :disabled="!photos[0]">Rimuovi</button>
-            </div>
+            <input type="file" accept="image/*" data-photo-input x-ref="photoInput0" @change="onPhotoChange($event, 0)" />
           </div>
           <div class="photo-card" data-photo="1">
-            <div class="photo-preview">
+            <div class="photo-preview is-clickable" @click="pickPhoto(1)">
+              <i class="fa-solid fa-camera photo-placeholder" aria-hidden="true" x-show="!photos[1]"></i>
               <img alt="Foto 2" data-photo-img x-show="photos[1]" :src="photos[1]?.dataUrl" />
+              <button class="photo-remove" type="button" aria-label="Rimuovi foto 2" x-show="photos[1]" @click.stop="removePhoto(1)">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
             </div>
             <div class="photo-meta" data-photo-name x-text="photoLabel(1)">Foto 2: nessun file</div>
-            <div class="actions-inline">
-              <input type="file" accept="image/*" data-photo-input x-ref="photoInput1" @change="onPhotoChange($event, 1)" />
-              <button class="btn" type="button" data-photo-pick @click="pickPhoto(1)">Aggiungi foto</button>
-              <button class="icon-btn danger" type="button" data-photo-remove @click="removePhoto(1)" :disabled="!photos[1]">Rimuovi</button>
-            </div>
+            <input type="file" accept="image/*" data-photo-input x-ref="photoInput1" @change="onPhotoChange($event, 1)" />
           </div>
           <div class="photo-card" data-photo="2">
-            <div class="photo-preview">
+            <div class="photo-preview is-clickable" @click="pickPhoto(2)">
+              <i class="fa-solid fa-camera photo-placeholder" aria-hidden="true" x-show="!photos[2]"></i>
               <img alt="Foto 3" data-photo-img x-show="photos[2]" :src="photos[2]?.dataUrl" />
+              <button class="photo-remove" type="button" aria-label="Rimuovi foto 3" x-show="photos[2]" @click.stop="removePhoto(2)">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
             </div>
             <div class="photo-meta" data-photo-name x-text="photoLabel(2)">Foto 3: nessun file</div>
-            <div class="actions-inline">
-              <input type="file" accept="image/*" data-photo-input x-ref="photoInput2" @change="onPhotoChange($event, 2)" />
-              <button class="btn" type="button" data-photo-pick @click="pickPhoto(2)">Aggiungi foto</button>
-              <button class="icon-btn danger" type="button" data-photo-remove @click="removePhoto(2)" :disabled="!photos[2]">Rimuovi</button>
-            </div>
+            <input type="file" accept="image/*" data-photo-input x-ref="photoInput2" @change="onPhotoChange($event, 2)" />
           </div>
         </div>
       </div>

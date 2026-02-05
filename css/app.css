@@ -23,7 +23,7 @@
 }
 
 .chip.is-active {
-  background: #2d4236;
+  background: #cc5a00 ;
   border-color: rgba(255,255,255,0.25);
 }
 
@@ -77,6 +77,36 @@
   place-items: center;
   height: 150px;
   overflow: hidden;
+  position: relative;
+}
+
+.photo-preview.is-clickable {
+  cursor: pointer;
+}
+
+.photo-placeholder {
+  color: rgba(255,255,255,0.35);
+  font-size: 80px;
+  pointer-events: none;
+}
+
+.photo-remove {
+  align-items: center;
+  background: rgba(170, 38, 38, 0.92);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 28px;
+}
+
+.photo-remove:hover {
+  background: rgba(200, 45, 45, 0.95);
 }
 
 .photo-preview img {
