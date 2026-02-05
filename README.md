@@ -18,7 +18,6 @@ Non richiede backend ed è pensato per un utilizzo interno, sviluppato in **HTML
 
 - Browser moderno (Chrome, Edge, Firefox, Safari).
 - Nessun backend richiesto: tutto gira lato client.
-- Opzionale: **localStorage** per ricordare i dati inseriti.
 
 ## 🚀 Come usarlo
 
@@ -32,7 +31,6 @@ Non richiede backend ed è pensato per un utilizzo interno, sviluppato in **HTML
 ## 🔒 Accesso
 
 Il progetto è destinato ad hosting statico.  
-Per limitarne l’uso ai soli colleghi può essere protetto tramite autenticazione esterna (es. **Microsoft 365 / Azure AD**, **Cloudflare Access**).
 
 ## 📌 Note
 
