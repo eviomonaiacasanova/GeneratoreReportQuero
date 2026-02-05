@@ -1,6 +1,5 @@
 const VERSION = "v5.5.0";
 const PLANTS_URL = "data/plants.json";
-// Se non trova il file usa questo elenco come fallback
 const DEFAULT_PLANTS = [
   "ALTANON",
   "ANZU",
@@ -25,32 +24,7 @@ const ZONES = ["GRUPPO 1", "GRUPPO 2", "SGRIGLIATORE", "ALTRO"];
 const ANOMALIES = ["ALLARME", "BLOCCO", "ALTRO"];
 const LOGO_PATH = "assets/img/logo_egp.png";
 
-const dom = {
-  plant: document.getElementById("plantSelect"),
-  date: document.getElementById("dateInput"),
-  time: document.getElementById("timeInput"),
-  operator: document.getElementById("operatorInput"),
-  zoneWrap: document.getElementById("zoneChips"),
-  anomalyWrap: document.getElementById("anomalyChips"),
-  desc: document.getElementById("descInput"),
-  ops: document.getElementById("opsInput"),
-  preview: document.getElementById("previewOutput"),
-  status: document.getElementById("statusMsg"),
-  versionLabel: document.getElementById("versionLabel"),
-  versionFooter: document.getElementById("versionFooter"),
-  copyBtn: document.getElementById("copyBtn"),
-  printBtn: document.getElementById("printBtn"),
-  downloadBtn: document.getElementById("downloadBtn"),
-  mailBtn: document.getElementById("mailBtn"),
-  resetBtn: document.getElementById("resetBtn"),
-  photoCards: Array.from(document.querySelectorAll("[data-photo]"))
-};
-
-const state = {
-  zones: new Set(),
-  anomaly: "",
-  photos: [null, null, null]
-};
+const safeArray = (value) => Array.isArray(value) ? value : [];
 
 function todayStr() {
   const d = new Date();
@@ -67,115 +41,6 @@ function nowHM() {
   return `${hh}:${mm}`;
 }
 
-
-function showStatus(text) {
-  if (!dom.status) return;
-  dom.status.textContent = text;
-  if (!text) return;
-  setTimeout(() => {
-    if (dom.status.textContent === text) {
-      dom.status.textContent = "";
-    }
-  }, 1400);
-}
-
-function populatePlants(plants) {
-  dom.plant.innerHTML = "";
-  const placeholder = document.createElement("option");
-  placeholder.value = "";
-  placeholder.textContent = "— seleziona impianto —";
-  dom.plant.appendChild(placeholder);
-
-  for (const plant of plants) {
-    const option = document.createElement("option");
-    option.value = plant;
-    option.textContent = plant;
-    dom.plant.appendChild(option);
-  }
-}
-
-async function loadPlants() {
-  try {
-    const res = await fetch(PLANTS_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error("Plants fetch failed");
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error("Invalid plants JSON");
-    populatePlants(data);
-  } catch (err) {
-    console.warn(err);
-    populatePlants(DEFAULT_PLANTS);
-    showStatus("Lista impianti di fallback.");
-  }
-}
-
-function makeChip(label, onClick) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "chip";
-  btn.textContent = label;
-  btn.addEventListener("click", onClick);
-  return btn;
-}
-
-function renderZoneChips() {
-  dom.zoneWrap.replaceChildren();
-  for (const zone of ZONES) {
-    const chip = makeChip(zone, () => {
-      if (state.zones.has(zone)) {
-        state.zones.delete(zone);
-        chip.classList.remove("is-active");
-      } else {
-        state.zones.add(zone);
-        chip.classList.add("is-active");
-      }
-      updatePreview();
-    });
-    dom.zoneWrap.appendChild(chip);
-  }
-}
-
-function renderAnomalyChips() {
-  dom.anomalyWrap.replaceChildren();
-  for (const anomaly of ANOMALIES) {
-    const chip = makeChip(anomaly, () => {
-      state.anomaly = anomaly;
-      [...dom.anomalyWrap.children].forEach((node) => {
-        node.classList.toggle("is-active", node.textContent === anomaly);
-      });
-      updatePreview();
-    });
-    dom.anomalyWrap.appendChild(chip);
-  }
-}
-
-function getReportValues() {
-  return {
-    plant: dom.plant.value || "—",
-    date: dom.date.value || "—",
-    time: dom.time.value || "—",
-    operator: dom.operator.value.trim() || "—",
-    zones: state.zones.size ? Array.from(state.zones).join(", ") : "—",
-    anomaly: state.anomaly || "—",
-    desc: dom.desc.value.trim() || "—",
-    ops: dom.ops.value.trim() || "—"
-  };
-}
-
-function updatePreview() {
-  if (!dom.preview) return;
-  if (window.ReportShare && typeof window.ReportShare.buildReportText === "function") {
-    dom.preview.value = window.ReportShare.buildReportText();
-  }
-}
-
-function bindInputs() {
-  const inputs = [dom.plant, dom.date, dom.time, dom.operator, dom.desc, dom.ops];
-  for (const input of inputs) {
-    input.addEventListener("input", updatePreview);
-    input.addEventListener("change", updatePreview);
-  }
-}
-
 function readAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -185,152 +50,202 @@ function readAsDataUrl(file) {
   });
 }
 
-function updatePhotoCard(card, photo) {
-  const img = card.querySelector("[data-photo-img]");
-  const name = card.querySelector("[data-photo-name]");
-  const removeBtn = card.querySelector("[data-photo-remove]");
+document.addEventListener("alpine:init", () => {
+  Alpine.data("reportApp", () => ({
+    version: VERSION,
+    plants: [],
+    plant: "",
+    date: "",
+    time: "",
+    operator: "",
+    zones: ZONES,
+    selectedZones: [],
+    anomalies: ANOMALIES,
+    anomaly: "",
+    desc: "",
+    ops: "",
+    photos: [null, null, null],
+    status: "",
 
-  if (photo && img) {
-    img.src = photo.dataUrl;
-    img.style.display = "block";
-    name.textContent = photo.name || "Foto";
-    removeBtn.disabled = false;
-  } else {
-    img.removeAttribute("src");
-    img.style.display = "none";
-    name.textContent = `Foto ${Number(card.dataset.photo) + 1}: nessun file`;
-    removeBtn.disabled = true;
-  }
-}
+    init() {
+      this.setDefaults();
+      this.exposeReportApp();
+      this.loadPlants();
+    },
 
-function bindPhotoCard(card, index) {
-  const input = card.querySelector("[data-photo-input]");
-  const pickBtn = card.querySelector("[data-photo-pick]");
-  const removeBtn = card.querySelector("[data-photo-remove]");
+    setDefaults() {
+      this.date = todayStr();
+      this.time = nowHM();
+    },
 
-  pickBtn.addEventListener("click", () => input.click());
+    showStatus(text) {
+      this.status = text || "";
+      if (!text) return;
+      setTimeout(() => {
+        if (this.status === text) {
+          this.status = "";
+        }
+      }, 1400);
+    },
 
-  input.addEventListener("change", async () => {
-    const file = input.files && input.files[0];
-    if (!file || !file.type.startsWith("image/")) return;
-    try {
-      const dataUrl = await readAsDataUrl(file);
-      state.photos[index] = {
-        dataUrl,
-        name: file.name,
-        type: file.type
+    exposeReportApp() {
+      const self = this;
+      window.ReportApp = {
+        getReportValues: () => self.getReportValues(),
+        showStatus: (text) => self.showStatus(text),
+        getPhotos: () => self.photos,
+        getLogoPath: () => LOGO_PATH,
+        getVersion: () => self.version,
+        getDateValue: () => self.date
       };
-      updatePhotoCard(card, state.photos[index]);
-    } catch (err) {
-      console.error(err);
-      showStatus("Errore lettura immagine.");
+    },
+
+    async loadPlants() {
+      try {
+        const res = await fetch(PLANTS_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("Plants fetch failed");
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Invalid plants JSON");
+        this.plants = data;
+      } catch (err) {
+        console.warn(err);
+        this.plants = DEFAULT_PLANTS;
+        this.showStatus("Lista impianti di fallback.");
+      }
+    },
+
+    toggleZone(zone) {
+      const list = safeArray(this.selectedZones);
+      if (list.includes(zone)) {
+        this.selectedZones = list.filter((item) => item !== zone);
+      } else {
+        this.selectedZones = [...list, zone];
+      }
+    },
+
+    isZoneSelected(zone) {
+      return safeArray(this.selectedZones).includes(zone);
+    },
+
+    selectAnomaly(anomaly) {
+      this.anomaly = anomaly;
+    },
+
+    getReportValues() {
+      return {
+        plant: this.plant || "—",
+        date: this.date || "—",
+        time: this.time || "—",
+        operator: this.operator.trim() || "—",
+        zones: this.selectedZones.length ? this.selectedZones.join(", ") : "—",
+        anomaly: this.anomaly || "—",
+        desc: this.desc.trim() || "—",
+        ops: this.ops.trim() || "—"
+      };
+    },
+
+    reportText() {
+      const v = this.getReportValues();
+      return [
+        `IMPIANTO: ${v.plant}`,
+        `DATA: ${v.date}`,
+        `ORA: ${v.time}`,
+        `OPERATORE: ${v.operator}`,
+        `ZONA: ${v.zones}`,
+        `ANOMALIA: ${v.anomaly}`,
+        "",
+        "DESCRIZIONE ANOMALIA:",
+        v.desc,
+        "",
+        "OPERAZIONI EFFETTUATE:",
+        v.ops,
+        "",
+        `VERSIONE: ${this.version}`
+      ].join("\n");
+    },
+
+    async onPhotoChange(event, index) {
+      const file = event.target.files && event.target.files[0];
+      if (!file || !file.type.startsWith("image/")) return;
+      try {
+        const dataUrl = await readAsDataUrl(file);
+        this.photos = this.photos.map((item, idx) => {
+          if (idx !== index) return item;
+          return {
+            dataUrl,
+            name: file.name,
+            type: file.type
+          };
+        });
+      } catch (err) {
+        console.error(err);
+        this.showStatus("Errore lettura immagine.");
+      }
+    },
+
+    pickPhoto(index) {
+      const ref = this.$refs[`photoInput${index}`];
+      if (ref) ref.click();
+    },
+
+    removePhoto(index) {
+      this.photos = this.photos.map((item, idx) => (idx === index ? null : item));
+      const ref = this.$refs[`photoInput${index}`];
+      if (ref) ref.value = "";
+    },
+
+    photoLabel(index) {
+      const photo = this.photos[index];
+      if (!photo) return `Foto ${index + 1}: nessun file`;
+      return photo.name || `Foto ${index + 1}`;
+    },
+
+    copyToClipboard() {
+      if (window.ReportShare && typeof window.ReportShare.copyToClipboard === "function") {
+        window.ReportShare.copyToClipboard();
+        return;
+      }
+      this.showStatus("Condivisione non disponibile.");
+    },
+
+    printPdf() {
+      if (window.ReportShare && typeof window.ReportShare.printPdf === "function") {
+        window.ReportShare.printPdf();
+        return;
+      }
+      this.showStatus("PDF non disponibile.");
+    },
+
+    downloadPdf() {
+      if (window.ReportShare && typeof window.ReportShare.downloadPdf === "function") {
+        window.ReportShare.downloadPdf();
+        return;
+      }
+      this.showStatus("PDF non disponibile.");
+    },
+
+    sendMail() {
+      if (window.ReportShare && typeof window.ReportShare.sendMail === "function") {
+        window.ReportShare.sendMail();
+        return;
+      }
+      this.showStatus("Mail non disponibile.");
+    },
+
+    resetAll() {
+      this.plant = "";
+      this.date = todayStr();
+      this.time = nowHM();
+      this.operator = "";
+      this.desc = "";
+      this.ops = "";
+      this.selectedZones = [];
+      this.anomaly = "";
+      this.photos = [null, null, null];
+      for (let i = 0; i < 3; i++) {
+        const ref = this.$refs[`photoInput${i}`];
+        if (ref) ref.value = "";
+      }
     }
-  });
-
-  removeBtn.addEventListener("click", () => {
-    state.photos[index] = null;
-    input.value = "";
-    updatePhotoCard(card, null);
-  });
-
-  updatePhotoCard(card, null);
-}
-
-function initPhotos() {
-  dom.photoCards.forEach((card, idx) => bindPhotoCard(card, idx));
-}
-
-function copyToClipboard() {
-  if (window.ReportShare && typeof window.ReportShare.copyToClipboard === "function") {
-    window.ReportShare.copyToClipboard();
-    return;
-  }
-  showStatus("Condivisione non disponibile.");
-}
-
-function printPdf() {
-  if (window.ReportShare && typeof window.ReportShare.printPdf === "function") {
-    window.ReportShare.printPdf();
-    return;
-  }
-  showStatus("PDF non disponibile.");
-}
-
-function downloadPdf() {
-  if (window.ReportShare && typeof window.ReportShare.downloadPdf === "function") {
-    window.ReportShare.downloadPdf();
-    return;
-  }
-  showStatus("PDF non disponibile.");
-}
-
-function sendMail() {
-  if (window.ReportShare && typeof window.ReportShare.sendMail === "function") {
-    window.ReportShare.sendMail();
-    return;
-  }
-  showStatus("Mail non disponibile.");
-}
-
-function resetAll() {
-  dom.plant.value = "";
-  dom.date.value = todayStr();
-  dom.time.value = nowHM();
-  dom.operator.value = "";
-  dom.desc.value = "";
-  dom.ops.value = "";
-  state.zones.clear();
-  state.anomaly = "";
-
-  [...dom.zoneWrap.children].forEach((chip) => chip.classList.remove("is-active"));
-  [...dom.anomalyWrap.children].forEach((chip) => chip.classList.remove("is-active"));
-
-  state.photos = [null, null, null];
-  dom.photoCards.forEach((card, idx) => {
-    const input = card.querySelector("[data-photo-input]");
-    if (input) input.value = "";
-    updatePhotoCard(card, null);
-  });
-
-  updatePreview();
-}
-
-function bindActions() {
-  dom.copyBtn.addEventListener("click", copyToClipboard);
-  dom.printBtn.addEventListener("click", printPdf);
-  dom.downloadBtn.addEventListener("click", downloadPdf);
-  dom.mailBtn.addEventListener("click", sendMail);
-  dom.resetBtn.addEventListener("click", resetAll);
-}
-
-function setDefaults() {
-  dom.date.value = todayStr();
-  dom.time.value = nowHM();
-  dom.versionLabel.textContent = VERSION;
-  dom.versionFooter.textContent = VERSION;
-}
-
-function exposeAppData() {
-  window.ReportApp = {
-    getReportValues,
-    showStatus,
-    getPhotos: () => state.photos,
-    getLogoPath: () => LOGO_PATH,
-    getVersion: () => VERSION,
-    getDateValue: () => dom.date.value
-  };
-}
-
-function init() {
-  exposeAppData();
-  setDefaults();
-  renderZoneChips();
-  renderAnomalyChips();
-  initPhotos();
-  bindInputs();
-  bindActions();
-  loadPlants();
-  updatePreview();
-}
-
-document.addEventListener("DOMContentLoaded", init);
+  }));
+});

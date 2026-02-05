@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/app.css" />
 </head>
-<body>
+<body x-data="reportApp()">
   <header class="topbar">
     <div class="brand">
       <img class="brand-logo" src="assets/img/logo_egp.png" alt="Logo" />
@@ -22,7 +22,7 @@
     <div class="toolbar">
       <div class="toolbar-group">
         <span class="small-muted">Versione</span>
-        <span class="badge" id="versionLabel">v5.4.0</span>
+        <span class="badge" id="versionLabel" x-text="version">v5.5.0</span>
       </div>
     </div>
   </header>
@@ -35,37 +35,48 @@
       <div class="meta-grid">
         <label class="full">
           <span>Impianto</span>
-          <select id="plantSelect">
+          <select id="plantSelect" x-model="plant">
             <option value="">— seleziona impianto —</option>
+            <template x-for="item in plants" :key="item">
+              <option :value="item" x-text="item"></option>
+            </template>
           </select>
         </label>
         <label>
           <span>Data anomalia</span>
-          <input type="date" id="dateInput" />
+          <input type="date" id="dateInput" x-model="date" />
         </label>
         <label>
           <span>Orario anomalia</span>
-          <input type="time" id="timeInput" />
+          <input type="time" id="timeInput" x-model="time" />
         </label>
         <label class="full">
           <span>Operatore</span>
-          <input type="text" id="operatorInput" placeholder="Nome e cognome o sigla" />
+          <input type="text" id="operatorInput" placeholder="Nome e cognome o sigla" x-model="operator" />
         </label>
         <label class="full">
           <span>Zona (selezione multipla)</span>
-          <div class="chips" id="zoneChips"></div>
+          <div class="chips" id="zoneChips">
+            <template x-for="zone in zones" :key="zone">
+              <button type="button" class="chip" :class="{ 'is-active': isZoneSelected(zone) }" @click="toggleZone(zone)" x-text="zone"></button>
+            </template>
+          </div>
         </label>
         <label class="full">
           <span>Anomalia (scelta singola)</span>
-          <div class="chips" id="anomalyChips"></div>
+          <div class="chips" id="anomalyChips">
+            <template x-for="item in anomalies" :key="item">
+              <button type="button" class="chip" :class="{ 'is-active': item === anomaly }" @click="selectAnomaly(item)" x-text="item"></button>
+            </template>
+          </div>
         </label>
         <label class="full">
           <span>Descrizione anomalia</span>
-          <textarea id="descInput" class="note" placeholder="Descrivi l'anomalia riscontrata..."></textarea>
+          <textarea id="descInput" class="note" placeholder="Descrivi l'anomalia riscontrata..." x-model="desc"></textarea>
         </label>
         <label class="full">
           <span>Operazioni effettuate</span>
-          <textarea id="opsInput" class="note" placeholder="Indica le azioni svolte, controlli e risultati..."></textarea>
+          <textarea id="opsInput" class="note" placeholder="Indica le azioni svolte, controlli e risultati..." x-model="ops"></textarea>
         </label>
       </div>
     </section>
@@ -79,35 +90,35 @@
         <div class="photo-grid">
           <div class="photo-card" data-photo="0">
             <div class="photo-preview">
-              <img alt="Foto 1" data-photo-img />
+              <img alt="Foto 1" data-photo-img x-show="photos[0]" :src="photos[0]?.dataUrl" />
             </div>
-            <div class="photo-meta" data-photo-name>Foto 1: nessun file</div>
+            <div class="photo-meta" data-photo-name x-text="photoLabel(0)">Foto 1: nessun file</div>
             <div class="actions-inline">
-              <input type="file" accept="image/*" data-photo-input />
-              <button class="btn" type="button" data-photo-pick>Aggiungi foto</button>
-              <button class="icon-btn danger" type="button" data-photo-remove>Rimuovi</button>
+              <input type="file" accept="image/*" data-photo-input x-ref="photoInput0" @change="onPhotoChange($event, 0)" />
+              <button class="btn" type="button" data-photo-pick @click="pickPhoto(0)">Aggiungi foto</button>
+              <button class="icon-btn danger" type="button" data-photo-remove @click="removePhoto(0)" :disabled="!photos[0]">Rimuovi</button>
             </div>
           </div>
           <div class="photo-card" data-photo="1">
             <div class="photo-preview">
-              <img alt="Foto 2" data-photo-img />
+              <img alt="Foto 2" data-photo-img x-show="photos[1]" :src="photos[1]?.dataUrl" />
             </div>
-            <div class="photo-meta" data-photo-name>Foto 2: nessun file</div>
+            <div class="photo-meta" data-photo-name x-text="photoLabel(1)">Foto 2: nessun file</div>
             <div class="actions-inline">
-              <input type="file" accept="image/*" data-photo-input />
-              <button class="btn" type="button" data-photo-pick>Aggiungi foto</button>
-              <button class="icon-btn danger" type="button" data-photo-remove>Rimuovi</button>
+              <input type="file" accept="image/*" data-photo-input x-ref="photoInput1" @change="onPhotoChange($event, 1)" />
+              <button class="btn" type="button" data-photo-pick @click="pickPhoto(1)">Aggiungi foto</button>
+              <button class="icon-btn danger" type="button" data-photo-remove @click="removePhoto(1)" :disabled="!photos[1]">Rimuovi</button>
             </div>
           </div>
           <div class="photo-card" data-photo="2">
             <div class="photo-preview">
-              <img alt="Foto 3" data-photo-img />
+              <img alt="Foto 3" data-photo-img x-show="photos[2]" :src="photos[2]?.dataUrl" />
             </div>
-            <div class="photo-meta" data-photo-name>Foto 3: nessun file</div>
+            <div class="photo-meta" data-photo-name x-text="photoLabel(2)">Foto 3: nessun file</div>
             <div class="actions-inline">
-              <input type="file" accept="image/*" data-photo-input />
-              <button class="btn" type="button" data-photo-pick>Aggiungi foto</button>
-              <button class="icon-btn danger" type="button" data-photo-remove>Rimuovi</button>
+              <input type="file" accept="image/*" data-photo-input x-ref="photoInput2" @change="onPhotoChange($event, 2)" />
+              <button class="btn" type="button" data-photo-pick @click="pickPhoto(2)">Aggiungi foto</button>
+              <button class="icon-btn danger" type="button" data-photo-remove @click="removePhoto(2)" :disabled="!photos[2]">Rimuovi</button>
             </div>
           </div>
         </div>
@@ -118,11 +129,11 @@
       <div class="panel-head">
         <div class="panel-title">Anteprima testo</div>
         <div class="panel-actions">
-          <span class="status" id="statusMsg"></span>
+          <span class="status" id="statusMsg" x-text="status"></span>
         </div>
       </div>
       <div class="sections">
-        <textarea id="previewOutput" class="note preview-box" readonly></textarea>
+        <textarea id="previewOutput" class="note preview-box" readonly x-bind:value="reportText()"></textarea>
       </div>
     </section>
 
@@ -131,20 +142,21 @@
         <div class="panel-title">Azioni</div>
       </div>
       <div class="sections actions-bar">
-        <button class="btn btn-primary" id="copyBtn" type="button">Copia</button>
-        <button class="btn" id="printBtn" type="button">Stampa</button>
-        <button class="btn" id="downloadBtn" type="button">Download PDF</button>
-        <button class="btn" id="mailBtn" type="button">Mail</button>
-        <button class="btn btn-danger" id="resetBtn" type="button">Nuovo report</button>
+        <button class="btn btn-primary" id="copyBtn" type="button" @click="copyToClipboard">Copia</button>
+        <button class="btn" id="printBtn" type="button" @click="printPdf">Stampa</button>
+        <button class="btn" id="downloadBtn" type="button" @click="downloadPdf">Download PDF</button>
+        <button class="btn" id="mailBtn" type="button" @click="sendMail">Mail</button>
+        <button class="btn btn-danger" id="resetBtn" type="button" @click="resetAll">Nuovo report</button>
       </div>
     </section>
   </main>
 
-  <footer class="app-footer">Generatore report reperibilita • <span id="versionFooter">v5.4.0</span></footer>
+  <footer class="app-footer">Generatore report reperibilita • <span id="versionFooter" x-text="version">v5.5.0</span></footer>
 
   <script src="lib/jspdf.umd.min.js"></script>
   <script src="lib/jspdf.plugin.autotable.min.js"></script>
   <script src="js/shareReport.js"></script>
-  <script src="js/app.js"></script>
+  <script defer src="js/app.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.15.8/dist/cdn.min.js"></script>
 </body>
 </html>
