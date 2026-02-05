@@ -1,7 +1,7 @@
 # Generatore di Report
 
 Questo progetto è una **pagina web statica** che permette la compilazione guidata e la condivisione di un **report di intervento**.  
-Il report viene aggiornato automaticamente mentre si compilano i campi e può essere condiviso via email, messaggistica, stampato o esportato in PDF. 
+Il report viene aggiornato automaticamente mentre si compilano i campi e può essere condiviso via email, messaggistica, stampato o esportato in PDF.
 
 ## ✨ Funzionalità
 
