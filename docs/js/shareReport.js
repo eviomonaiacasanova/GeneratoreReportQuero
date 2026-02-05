@@ -261,4 +261,5 @@ const ShareReport = (() => {
   };
 })();
 
+//Aggiungo l'oggetto SahreReport dentro l'oggeto window
 window.ReportShare = ShareReport;
