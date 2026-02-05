@@ -4,7 +4,7 @@ frontend:
     build:
       commands: []   # nessuna build: è un sito statico
   artifacts:
-    baseDirectory: docs
+    baseDirectory: .
     files:
       - '**/*'
   cache:
