@@ -64,6 +64,7 @@ document.addEventListener("alpine:init", () => {
     anomaly: "",
     desc: "",
     ops: "",
+    note: "",
     photos: [null, null, null],
     status: "",
 
@@ -140,7 +141,8 @@ document.addEventListener("alpine:init", () => {
         zones: this.selectedZones.length ? this.selectedZones.join(", ") : "—",
         anomaly: this.anomaly || "—",
         desc: this.desc.trim() || "—",
-        ops: this.ops.trim() || "—"
+        ops: this.ops.trim() || "—",
+        note: this.note.trim() || "—"
       };
     },
 
@@ -159,6 +161,9 @@ document.addEventListener("alpine:init", () => {
         "",
         "OPERAZIONI EFFETTUATE:",
         v.ops,
+        "",
+        "NOTE OPERATORE:",
+        v.note,
         "",
         `VERSIONE: ${this.version}`
       ].join("\n");
@@ -239,6 +244,7 @@ document.addEventListener("alpine:init", () => {
       this.operator = "";
       this.desc = "";
       this.ops = "";
+      this.note = "";
       this.selectedZones = [];
       this.anomaly = "";
       this.photos = [null, null, null];

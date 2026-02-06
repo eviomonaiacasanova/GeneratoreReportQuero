@@ -32,6 +32,9 @@ const ShareReport = (() => {
       "OPERAZIONI EFFETTUATE:",
       v.ops || "—",
       "",
+      "NOTE OPERATORE:",
+      v.note || "—",
+      "",
       `VERSIONE: ${getVersion()}`
     ].join("\n");
   }
@@ -189,6 +192,7 @@ const ShareReport = (() => {
 
     addParagraph("Descrizione anomalia", v.desc || "—");
     addParagraph("Operazioni effettuate", v.ops || "—");
+    addParagraph("Note operatore", v.note || "—");
 
     const photos = getPhotos();
     if (photos.some(Boolean)) {
