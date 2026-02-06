@@ -22,7 +22,7 @@ const DEFAULT_PLANTS = [
 ];
 const ZONES = ["GRUPPO 1", "GRUPPO 2", "SGRIGLIATORE", "ALTRO"];
 const ANOMALIES = ["ALLARME", "BLOCCO", "ALTRO"];
-const LOGO_PATH = "assets/img/logo_egp.png";
+const LOGO_PATH = "assets/logo.png";
 
 const safeArray = (value) => Array.isArray(value) ? value : [];
 
