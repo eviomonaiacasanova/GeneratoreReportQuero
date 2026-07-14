@@ -24,6 +24,13 @@ Il report viene aggiornato automaticamente mentre si compilano i campi e può es
 3. Il report viene aggiornato automaticamente durante la compilazione.
 4. Scaricare e inviare report secondo metodo preferito.
 
+### Selezione del reparto
+
+- Quero (predefinito): `https://schedaguasto.netlify.app/` oppure `https://schedaguasto.netlify.app/?plant=plantQuero`
+- Arsiè: `https://schedaguasto.netlify.app/?plant=plantArsie`
+
+Il parametro `plant` seleziona la lista degli impianti e aggiorna il reparto mostrato nella pagina e nel PDF.
+
 ## 📌 Note
 
 - Nessun dato viene salvato su server: tutto resta sul dispositivo fino all’invio del report.

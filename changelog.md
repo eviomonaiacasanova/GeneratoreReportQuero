@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.1.0 - 2026-07-14
+
+- Aggiunta la selezione del reparto tramite il parametro URL `plant`.
+- Separate le liste impianti di Quero e Arsiè.
+- Aggiornata automaticamente l'intestazione del reparto nella pagina e nei PDF.
+
 ## 6.0.0 - 2026-02-06
 
 - ✏️ Migrazione codice su Alpinejs

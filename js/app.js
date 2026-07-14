@@ -1,30 +1,61 @@
-const VERSION = "v6.0.0";
-const PLANTS_URL = "data/plants.json";
-const DEFAULT_PLANTS = [
-  "ALTANON",
-  "ANZU",
-  "ARCADE",
-  "BUSCHE DMV",
-  "BUSCHE SBARRAMENTO",
-  "CAERANO",
-  "CASTELVIERO",
-  "CROCE DEL GALLO",
-  "FONDERIA",
-  "PEDEROBBA",
-  "POMPE SONNA",
-  "PONTE PIETRA",
-  "PONTE SAN MARTINO",
-  "PRIULA",
-  "QUERO",
-  "SPEEDY",
-  "SPRESIANO",
-  "TAVARAN"
-];
-const ZONES = ["GRUPPO 1", "GRUPPO 2", "SGRIGLIATORE", "ALTRO"];
+const VERSION = "v6.1.0";
+const DEFAULT_PLANT_LIST = "plantQuero";
+const PLANT_LISTS = Object.freeze({
+  plantQuero: {
+    url: "data/plantsQuero.json",
+    department: "OU Quero",
+    fallback: [
+      "ALTANON",
+      "ANZU",
+      "ARCADE",
+      "BUSCHE DMV",
+      "BUSCHE SBARRAMENTO",
+      "CAERANO",
+      "CASTELVIERO",
+      "CROCE DEL GALLO",
+      "FONDERIA",
+      "PEDEROBBA",
+      "POMPE SONNA",
+      "PONTE PIETRA",
+      "PONTE SAN MARTINO",
+      "PRIULA",
+      "QUERO",
+      "SPEEDY",
+      "SPRESIANO",
+      "TAVARAN"
+    ]
+  },
+  plantArsie: {
+    url: "data/plantsArsie.json",
+    department: "OU Arsiè",
+    fallback: [
+      "ARSIE",
+      "SENAIGA",
+      "PONTE SERRA",
+      "MOLINE",
+      "PEDESALTO",
+      "CAVILLA",
+      "POMPE SAN VITO",
+      "MIGNANO",
+      "CA'BARZIZZA"
+    ]
+  }
+});
+const ZONES = ["GRUPPO 1", "GRUPPO 2", "GRUPPO 3", "SGRIGLIATORE", "ALTRO"];
 const ANOMALIES = ["ALLARME", "BLOCCO", "ALTRO"];
 const LOGO_PATH = "assets/logo.png";
 
 const safeArray = (value) => Array.isArray(value) ? value : [];
+
+function getPlantList() {
+  const requestedList = new URLSearchParams(window.location.search).get("plant");
+  const listKey = Object.prototype.hasOwnProperty.call(PLANT_LISTS, requestedList)
+    ? requestedList
+    : DEFAULT_PLANT_LIST;
+  return PLANT_LISTS[listKey];
+}
+
+const ACTIVE_PLANT_LIST = getPlantList();
 
 function todayStr() {
   const d = new Date();
@@ -53,6 +84,7 @@ function readAsDataUrl(file) {
 document.addEventListener("alpine:init", () => {
   Alpine.data("reportApp", () => ({
     version: VERSION,
+    department: ACTIVE_PLANT_LIST.department,
     plants: [],
     plant: "",
     date: "",
@@ -96,6 +128,7 @@ document.addEventListener("alpine:init", () => {
         showStatus: (text) => self.showStatus(text),
         getPhotos: () => self.photos,
         getLogoPath: () => LOGO_PATH,
+        getDepartment: () => self.department,
         getVersion: () => self.version,
         getDateValue: () => self.date
       };
@@ -103,14 +136,14 @@ document.addEventListener("alpine:init", () => {
 
     async loadPlants() {
       try {
-        const res = await fetch(PLANTS_URL, { cache: "no-store" });
+        const res = await fetch(ACTIVE_PLANT_LIST.url, { cache: "no-store" });
         if (!res.ok) throw new Error("Plants fetch failed");
         const data = await res.json();
         if (!Array.isArray(data)) throw new Error("Invalid plants JSON");
         this.plants = data;
       } catch (err) {
         console.warn(err);
-        this.plants = DEFAULT_PLANTS;
+        this.plants = ACTIVE_PLANT_LIST.fallback;
         this.showStatus("Lista impianti di fallback.");
       }
     },

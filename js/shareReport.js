@@ -120,6 +120,7 @@ const ShareReport = (() => {
     const getReportValues = app.getReportValues || (() => ({}));
     const getVersion = app.getVersion || (() => "");
     const getPhotos = app.getPhotos || (() => []);
+    const getDepartment = app.getDepartment || (() => "OU Quero");
 
     const v = getReportValues();
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -152,7 +153,7 @@ const ShareReport = (() => {
     const lineGap = 18;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("UT Feltre • OU Quero", headerRightX, headerTop + 14, { align: "right" });
+    doc.text(`UT Feltre • ${getDepartment()}`, headerRightX, headerTop + 14, { align: "right" });
     doc.setFontSize(13);
     doc.text("Scheda Guasto", headerRightX, headerTop + 14 + lineGap, { align: "right" });
 
