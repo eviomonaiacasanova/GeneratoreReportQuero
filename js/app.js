@@ -1,4 +1,4 @@
-const VERSION = "v6.1.0";
+const VERSION = "v6.1.1";
 const DEFAULT_PLANT_LIST = "plantQuero";
 const PLANT_LISTS = Object.freeze({
   plantQuero: {
@@ -29,15 +29,20 @@ const PLANT_LISTS = Object.freeze({
     url: "data/plantsArsie.json",
     department: "OU Arsiè",
     fallback: [
+      "ARSON",
       "ARSIE",
-      "SENAIGA",
-      "PONTE SERRA",
+      "CA'BARZIZZA",
+      "CAVILLA",
+      "LA GUARDA",
+      "LA STUA",
+      "MIGNANO",
+      "MIGNANO DMV",
       "MOLINE",
       "PEDESALTO",
-      "CAVILLA",
       "POMPE SAN VITO",
-      "MIGNANO",
-      "CA'BARZIZZA"
+      "PONTE SERRA",
+      "SBARRAMENTO MIGNANO",
+      "SENAIGA"
     ]
   }
 });
