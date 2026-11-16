@@ -26,8 +26,8 @@ Il report viene aggiornato automaticamente mentre si compilano i campi e può es
 
 ### Selezione del reparto
 
-- Quero (predefinito): `https://schedaguasto.netlify.app/` oppure `https://schedaguasto.netlify.app/?plant=plantQuero`
-- Arsiè: `https://schedaguasto.netlify.app/?plant=plantArsie`
+- Quero (predefinito): `https://eviomonaiacasanova.github.io/GeneratoreReportQuero/` oppure `https://eviomonaiacasanova.github.io/GeneratoreReportQuero/?plant=plantQuero`
+- Arsiè: `https://eviomonaiacasanova.github.io/GeneratoreReportQuero/?plant=plantArsie`
 
 Il parametro `plant` seleziona la lista degli impianti e aggiorna il reparto mostrato nella pagina e nel PDF.
 
